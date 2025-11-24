@@ -1,121 +1,124 @@
 import React, { useState } from "react";
 import { api } from "../services/api";
 
-// ------------------ AI SKILLS ------------------
 export function AISkills({ onGenerated }) {
   const [keywords, setKeywords] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const generate = async () => {
-    const res = await api.post("/api/ai/generate-skills", { keywords });
-    onGenerated(res.data.skills);
+    if (!keywords.trim()) return;
+    setLoading(true);
+    try {
+      const res = await api.post("/api/ai/generate-skills", { keywords });
+      onGenerated(res.data.skills || []);
+    } catch {
+      alert("AI skills generation failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="bg-base-card p-4 rounded-lg border">
-      <h3 className="font-semibold mb-2">AI Skill Generator</h3>
+    <div className="bg-base-card border border-base-border rounded-xl p-4 space-y-2">
+      <h3 className="font-semibold text-sm">AI Skill Generator</h3>
       <textarea
-        className="w-full p-2 border rounded bg-base-bg"
-        placeholder="Enter keywords..."
+        className="w-full p-2 border border-base-border rounded-lg text-sm"
+        rows={3}
+        placeholder="Type your stack / keywords..."
         value={keywords}
         onChange={(e) => setKeywords(e.target.value)}
       />
-
       <button
         onClick={generate}
-        className="mt-2 px-4 py-2 bg-primary-500 text-white rounded hover:bg-primary-hover"
+        disabled={loading}
+        className="px-3 py-1.5 rounded-lg bg-primary-500 text-white text-xs font-semibold hover:bg-primary-hover disabled:opacity-60"
       >
-        Generate Skills
+        {loading ? "Generating..." : "Generate Skills"}
       </button>
     </div>
   );
 }
 
-// ------------------ AI EXPERIENCE ------------------
-export function AIExperience({ onGenerated }) {
-  const [role, setRole] = useState("");
-  const [company, setCompany] = useState("");
-  const [tech, setTech] = useState("");
-  const [notes, setNotes] = useState("");
+export function AIExperience({ experience, onUpdate }) {
+  const [loading, setLoading] = useState(false);
 
   const generate = async () => {
-    const res = await api.post("/api/ai/generate-experience", {
-      role,
-      company,
-      tech,
-      notes,
-    });
+    if (!experience.role && !experience.company) return;
+    setLoading(true);
+    try {
+      const res = await api.post("/api/ai/generate-experience", {
+        role: experience.role,
+        company: experience.company,
+        tech: experience.tech || "",
+        notes: experience.notes || "",
+      });
 
-    onGenerated(res.data.bullets);
+      const bullets = res.data.bullets || [];
+
+      onUpdate({
+        ...experience,
+        bullets,
+        bulletsText: bullets.join("\n"),
+      });
+    } catch {
+      alert("AI experience generation failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="bg-base-card p-4 rounded border space-y-2">
-      <h3 className="font-semibold">AI Experience</h3>
-
-      <input
-        className="input"
-        placeholder="Role"
-        value={role}
-        onChange={(e) => setRole(e.target.value)}
-      />
-      <input
-        className="input"
-        placeholder="Company"
-        value={company}
-        onChange={(e) => setCompany(e.target.value)}
-      />
-      <input
-        className="input"
-        placeholder="Tech (React, Node…) "
-        value={tech}
-        onChange={(e) => setTech(e.target.value)}
-      />
-      <textarea
-        className="textarea"
-        placeholder="Notes..."
-        value={notes}
-        onChange={(e) => setNotes(e.target.value)}
-      />
-
-      <button
-        onClick={generate}
-        className="px-4 py-2 bg-primary-500 text-white rounded hover:bg-primary-hover"
-      >
-        Generate Bullets
-      </button>
-    </div>
+    <button
+      type="button"
+      onClick={generate}
+      disabled={loading}
+      className="text-xs px-3 py-1 rounded-lg bg-primary-500 text-white hover:bg-primary-hover disabled:opacity-60"
+    >
+      {loading ? "AI..." : "AI Bullets"}
+    </button>
   );
 }
 
-// ------------------ AI PROJECTS ------------------
 export function AIProjects({ onGenerated }) {
   const [keywords, setKeywords] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const generate = async () => {
-    const res = await api.post("/api/ai/generate-full", {
-      keywords,
-      targetRole: "Developer",
-    });
+    if (!keywords.trim()) return;
+    setLoading(true);
 
-    onGenerated(res.data.projects);
+    try {
+      const res = await api.post("/api/ai/generate-full", {
+        keywords,
+        targetRole: "Software Developer",
+      });
+
+      const projects = res.data.projects || [];
+
+      onGenerated(projects);
+    } catch {
+      alert("AI project generation failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="bg-base-card p-4 rounded border">
-      <h3 className="font-semibold">AI Project Generator</h3>
-
+    <div className="bg-base-card border border-base-border rounded-xl p-4 space-y-2 mt-3">
+      <h3 className="font-semibold text-sm">AI Project Ideas</h3>
       <textarea
-        className="textarea"
-        placeholder="Keywords..."
+        className="w-full p-2 border border-base-border rounded-lg text-sm"
+        rows={3}
+        placeholder="Describe your interests / tech..."
         value={keywords}
         onChange={(e) => setKeywords(e.target.value)}
       />
-
       <button
         onClick={generate}
-        className="mt-2 px-4 py-2 bg-primary-500 text-white rounded hover:bg-primary-hover"
+        disabled={loading}
+        className="px-3 py-1.5 rounded-lg bg-primary-500 text-white text-xs font-semibold hover:bg-primary-hover disabled:opacity-60"
       >
-        Generate Projects
+        {loading ? "Generating..." : "Generate Projects"}
       </button>
     </div>
   );

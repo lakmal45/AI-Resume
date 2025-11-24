@@ -1,401 +1,15 @@
-// src/pages/Editor.jsx
-
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../services/api";
+const [saveState, setSaveState] = useState("Saved");
 
-/* ===========================
-   Resume Templates (3 styles)
-   =========================== */
+import {
+  TemplateMinimal,
+  TemplateModern,
+  TemplateTwoColumn,
+} from "../templates/Templates";
 
-function TemplateMinimal({ data }) {
-  const header = data.header || {};
-  const skills = data.skills || [];
-  const experience = data.experience || [];
-  const projects = data.projects || [];
-
-  return (
-    <div className="bg-white text-black p-8 shadow-xl max-w-[210mm] min-h-[297mm] mx-auto">
-      {/* HEADER */}
-      <div className="border-b border-gray-300 pb-3 mb-4">
-        <h1 className="text-3xl font-bold">{header.name || "Your Name"}</h1>
-        <p className="text-sm text-gray-600">
-          {header.role || "Your Role / Target Position"}
-        </p>
-        <p className="text-xs text-gray-500 mt-1">
-          {header.email && <span>{header.email}</span>}
-          {header.email && header.phone && <span> · </span>}
-          {header.phone && <span>{header.phone}</span>}
-        </p>
-      </div>
-
-      {/* SUMMARY */}
-      <section className="mb-4">
-        <h2 className="text-sm font-semibold tracking-wide text-gray-700 uppercase">
-          Summary
-        </h2>
-        <p className="text-sm mt-1 whitespace-pre-line">
-          {data.summary || "Write a short, impactful summary here."}
-        </p>
-      </section>
-
-      {/* SKILLS */}
-      <section className="mb-4">
-        <h2 className="text-sm font-semibold tracking-wide text-gray-700 uppercase">
-          Skills
-        </h2>
-        <div className="mt-1 flex flex-wrap gap-2">
-          {skills.length > 0 ? (
-            skills.map((s, i) => (
-              <span
-                key={i}
-                className="px-2 py-1 text-xs bg-gray-100 rounded border border-gray-200"
-              >
-                {s}
-              </span>
-            ))
-          ) : (
-            <p className="text-sm text-gray-500">
-              Add skills like React, JavaScript, Node.js...
-            </p>
-          )}
-        </div>
-      </section>
-
-      {/* EXPERIENCE */}
-      {experience.length > 0 && (
-        <section className="mb-4">
-          <h2 className="text-sm font-semibold tracking-wide text-gray-700 uppercase">
-            Experience
-          </h2>
-          {experience.map((exp, i) => (
-            <div key={i} className="mt-2">
-              <p className="font-semibold text-sm">
-                {exp.role} — {exp.company}
-              </p>
-              <ul className="list-disc ml-5 text-sm text-gray-700">
-                {(exp.bullets || []).map((b, j) => (
-                  <li key={j}>{b}</li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </section>
-      )}
-
-      {/* PROJECTS */}
-      {projects.length > 0 && (
-        <section className="mb-4">
-          <h2 className="text-sm font-semibold tracking-wide text-gray-700 uppercase">
-            Projects
-          </h2>
-          {projects.map((p, i) => (
-            <div key={i} className="mt-2">
-              <p className="font-semibold text-sm">{p.name}</p>
-              <p className="text-sm text-gray-700">{p.desc}</p>
-              {p.tech && p.tech.length > 0 && (
-                <p className="text-xs text-gray-500">
-                  Tech: {p.tech.join(", ")}
-                </p>
-              )}
-            </div>
-          ))}
-        </section>
-      )}
-    </div>
-  );
-}
-
-function TemplateModern({ data }) {
-  const header = data.header || {};
-  const skills = data.skills || [];
-  const experience = data.experience || [];
-  const projects = data.projects || [];
-
-  return (
-    <div className="p-8 shadow-xl bg-white text-black max-w-[210mm] min-h-[297mm] mx-auto">
-      {/* Header row */}
-      <div className="flex justify-between items-center border-b border-gray-300 pb-3 mb-4">
-        <div>
-          <h1 className="text-3xl font-bold">{header.name || "Your Name"}</h1>
-          <p className="text-sm text-gray-600">
-            {header.role || "Your Role / Target Position"}
-          </p>
-        </div>
-        <div className="text-xs text-gray-500 text-right">
-          {header.email && <p>{header.email}</p>}
-          {header.phone && <p>{header.phone}</p>}
-        </div>
-      </div>
-
-      {/* SUMMARY */}
-      <section className="mb-4">
-        <h2 className="text-sm font-semibold text-primary-500 uppercase tracking-wide">
-          Summary
-        </h2>
-        <p className="text-sm mt-1 whitespace-pre-line">{data.summary}</p>
-      </section>
-
-      {/* SKILLS */}
-      <section className="mb-4">
-        <h2 className="text-sm font-semibold text-primary-500 uppercase tracking-wide">
-          Skills
-        </h2>
-        <ul className="list-disc ml-5 text-sm">
-          {skills.length
-            ? skills.map((s, i) => <li key={i}>{s}</li>)
-            : "Add your skills"}
-        </ul>
-      </section>
-
-      {/* EXPERIENCE */}
-      {experience.length > 0 && (
-        <section className="mb-4">
-          <h2 className="text-sm font-semibold text-primary-500 uppercase tracking-wide">
-            Experience
-          </h2>
-          {experience.map((exp, i) => (
-            <div key={i} className="mt-2">
-              <p className="font-semibold text-sm">
-                {exp.role} — {exp.company}
-              </p>
-              <ul className="list-disc ml-5 text-sm text-gray-800">
-                {(exp.bullets || []).map((b, j) => (
-                  <li key={j}>{b}</li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </section>
-      )}
-
-      {/* PROJECTS */}
-      {projects.length > 0 && (
-        <section className="mb-4">
-          <h2 className="text-sm font-semibold text-primary-500 uppercase tracking-wide">
-            Projects
-          </h2>
-          {projects.map((p, i) => (
-            <div key={i} className="mt-2">
-              <p className="font-semibold text-sm">{p.name}</p>
-              <p className="text-sm text-gray-800">{p.desc}</p>
-              {p.tech && p.tech.length > 0 && (
-                <p className="text-xs text-gray-500">
-                  Tech: {p.tech.join(", ")}
-                </p>
-              )}
-            </div>
-          ))}
-        </section>
-      )}
-    </div>
-  );
-}
-
-function TemplateTwoColumn({ data }) {
-  const header = data.header || {};
-  const skills = data.skills || [];
-  const experience = data.experience || [];
-  const projects = data.projects || [];
-
-  return (
-    <div className="p-8 shadow-xl bg-white text-black max-w-[210mm] min-h-[297mm] mx-auto grid grid-cols-3 gap-6">
-      {/* LEFT COLUMN */}
-      <div className="col-span-1 border-r border-gray-300 pr-4">
-        <h1 className="text-2xl font-bold">{header.name || "Your Name"}</h1>
-        <p className="text-gray-600 text-sm">{header.role || "Your Role"}</p>
-        <div className="mt-2 text-xs text-gray-500">
-          {header.email && <p>{header.email}</p>}
-          {header.phone && <p>{header.phone}</p>}
-        </div>
-
-        <h2 className="mt-6 text-sm font-semibold text-gray-700 uppercase tracking-wide">
-          Skills
-        </h2>
-        <ul className="list-disc ml-5 text-xs mt-1">
-          {skills.length
-            ? skills.map((s, i) => <li key={i}>{s}</li>)
-            : "Add your skills"}
-        </ul>
-      </div>
-
-      {/* RIGHT COLUMN */}
-      <div className="col-span-2">
-        <section className="mb-4">
-          <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-            Summary
-          </h2>
-          <p className="text-sm mt-1 whitespace-pre-line">{data.summary}</p>
-        </section>
-
-        {experience.length > 0 && (
-          <section className="mb-4">
-            <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-              Experience
-            </h2>
-            {experience.map((exp, i) => (
-              <div key={i} className="mt-2">
-                <p className="font-semibold text-sm">
-                  {exp.role} — {exp.company}
-                </p>
-                <ul className="list-disc ml-5 text-sm text-gray-800">
-                  {(exp.bullets || []).map((b, j) => (
-                    <li key={j}>{b}</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </section>
-        )}
-
-        {projects.length > 0 && (
-          <section className="mb-4">
-            <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-              Projects
-            </h2>
-            {projects.map((p, i) => (
-              <div key={i} className="mt-2">
-                <p className="font-semibold text-sm">{p.name}</p>
-                <p className="text-sm text-gray-800">{p.desc}</p>
-                {p.tech && p.tech.length > 0 && (
-                  <p className="text-xs text-gray-500">
-                    Tech: {p.tech.join(", ")}
-                  </p>
-                )}
-              </div>
-            ))}
-          </section>
-        )}
-      </div>
-    </div>
-  );
-}
-
-/* ===========================
-   AI Helper Components
-   =========================== */
-
-function AISkills({ onGenerated }) {
-  const [keywords, setKeywords] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const generate = async () => {
-    if (!keywords.trim()) return;
-    setLoading(true);
-    try {
-      const res = await api.post("/api/ai/generate-skills", { keywords });
-      onGenerated(res.data.skills || []);
-    } catch (err) {
-      alert("AI skills generation failed");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="bg-base-card border border-base-border rounded-xl p-4 space-y-2">
-      <h3 className="font-semibold text-sm">AI Skill Generator</h3>
-      <textarea
-        className="w-full p-2 border border-base-border rounded-lg text-sm"
-        rows={3}
-        placeholder="Type your stack / keywords (React, Node.js, MongoDB, Tailwind...)"
-        value={keywords}
-        onChange={(e) => setKeywords(e.target.value)}
-      />
-      <button
-        onClick={generate}
-        disabled={loading}
-        className="px-3 py-1.5 rounded-lg bg-primary-500 text-white text-xs font-semibold hover:bg-primary-hover disabled:opacity-60"
-      >
-        {loading ? "Generating..." : "Generate Skills"}
-      </button>
-    </div>
-  );
-}
-
-function AIExperience({ experience, onUpdate }) {
-  const [loading, setLoading] = useState(false);
-
-  const generate = async () => {
-    if (!experience.role && !experience.company) return;
-    setLoading(true);
-    try {
-      const res = await api.post("/api/ai/generate-experience", {
-        role: experience.role,
-        company: experience.company,
-        tech: experience.tech || "",
-        notes: experience.notes || "",
-      });
-      const bullets = res.data.bullets || [];
-      onUpdate({
-        ...experience,
-        bullets,
-        bulletsText: bullets.join("\n"),
-      });
-    } catch (err) {
-      alert("AI experience generation failed");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <button
-      type="button"
-      onClick={generate}
-      disabled={loading}
-      className="text-xs px-3 py-1 rounded-lg bg-primary-500 text-white hover:bg-primary-hover disabled:opacity-60"
-    >
-      {loading ? "AI..." : "AI Bullets"}
-    </button>
-  );
-}
-
-function AIProjects({ onGenerated }) {
-  const [keywords, setKeywords] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const generate = async () => {
-    if (!keywords.trim()) return;
-    setLoading(true);
-    try {
-      const res = await api.post("/api/ai/generate-full", {
-        keywords,
-        targetRole: "Software Developer",
-      });
-      const projects = res.data.projects || res.data?.projects || [];
-      onGenerated(projects);
-    } catch (err) {
-      alert("AI project generation failed");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="bg-base-card border border-base-border rounded-xl p-4 space-y-2 mt-3">
-      <h3 className="font-semibold text-sm">AI Project Ideas</h3>
-      <textarea
-        className="w-full p-2 border border-base-border rounded-lg text-sm"
-        rows={3}
-        placeholder="Describe your interests / tech (e.g., React, MERN, movie apps, dashboards...)"
-        value={keywords}
-        onChange={(e) => setKeywords(e.target.value)}
-      />
-      <button
-        onClick={generate}
-        disabled={loading}
-        className="px-3 py-1.5 rounded-lg bg-primary-500 text-white text-xs font-semibold hover:bg-primary-hover disabled:opacity-60"
-      >
-        {loading ? "Generating..." : "Generate Projects"}
-      </button>
-    </div>
-  );
-}
-
-/* ===========================
-   Main Editor Page
-   =========================== */
+import { AISkills, AIExperience, AIProjects } from "../components/AITools";
 
 export default function Editor() {
   const { id } = useParams();
@@ -420,9 +34,8 @@ export default function Editor() {
   const [pdfLoading, setPdfLoading] = useState(false);
   const [summaryLoading, setSummaryLoading] = useState(false);
 
-  // Load resume on mount
+  // LOAD RESUME
   useEffect(() => {
-    // NEW RESUME LOGIC
     if (id === "new") {
       setResumeDoc({
         _id: null,
@@ -444,13 +57,14 @@ export default function Editor() {
       setExperiences([]);
       setProjects([]);
 
-      return; // ⛔ Do NOT fetch from backend
+      return;
     }
-    // EXISTING RESUME LOGIC
+
     const loadExisting = async () => {
       try {
         const res = await api.get(`/api/resumes/${id}`);
         const r = res.data;
+
         let data = {};
         try {
           data = r.resumeJson ? JSON.parse(r.resumeJson) : {};
@@ -468,6 +82,7 @@ export default function Editor() {
           summary: data.summary || "",
           skillsText: (data.skills || []).join(", "),
         });
+
         setExperiences(
           (data.experience || []).map((exp) => ({
             role: exp.role || "",
@@ -478,6 +93,7 @@ export default function Editor() {
             notes: "",
           }))
         );
+
         setProjects(
           (data.projects || []).map((p) => ({
             name: p.name || "",
@@ -490,6 +106,7 @@ export default function Editor() {
         navigate("/dashboard");
       }
     };
+
     loadExisting();
   }, [id, navigate]);
 
@@ -550,12 +167,47 @@ Name: ${form.name || "N/A"}
 Target role: ${form.role || "Software Developer / Intern"}
 Skills: ${form.skillsText || "React, JavaScript, Node.js"}
 `;
+
       const res = await api.post("/api/ai/generate-summary", { prompt });
       updateForm("summary", res.data.summary);
     } catch (err) {
       alert("AI summary failed");
     } finally {
       setSummaryLoading(false);
+    }
+  };
+
+  const handleBack = async () => {
+    const dataObj = buildDataObject();
+
+    try {
+      // For NEW resume (id === "new")
+      if (id === "new") {
+        if (isFormEmpty()) {
+          navigate("/dashboard");
+          return;
+        }
+
+        const res = await api.post("/api/resumes", {
+          template,
+          resumeJson: JSON.stringify(dataObj),
+        });
+
+        navigate("/dashboard");
+        return;
+      }
+
+      // For EXISTING resume
+      await api.put(`/api/resumes/${resumeDoc._id}`, {
+        ...resumeDoc,
+        template,
+        resumeJson: JSON.stringify(dataObj),
+      });
+
+      navigate("/dashboard");
+    } catch (err) {
+      alert("Auto-save failed");
+      navigate("/dashboard");
     }
   };
 
@@ -607,10 +259,22 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
     };
   };
 
+  const isFormEmpty = () => {
+    return (
+      !form.name &&
+      !form.role &&
+      !form.email &&
+      !form.phone &&
+      !form.summary &&
+      !form.skillsText &&
+      experiences.length === 0 &&
+      projects.length === 0
+    );
+  };
+
   const handleSave = async () => {
     const dataObj = buildDataObject();
 
-    // NEW RESUME — FIRST SAVE
     if (id === "new") {
       if (isFormEmpty()) {
         alert("Nothing to save");
@@ -624,7 +288,6 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
           resumeJson: JSON.stringify(dataObj),
         });
 
-        // Redirect to actual resume ID
         navigate(`/editor/${res.data._id}`);
       } catch (err) {
         alert("Save failed");
@@ -633,8 +296,9 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
       }
       return;
     }
-    // EXISTING RESUME — UPDATE
+
     if (!resumeDoc) return;
+
     setSaving(true);
     try {
       const dataObj = buildDataObject();
@@ -652,7 +316,6 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
   };
 
   const buildHtmlForPdf = (dataObj) => {
-    // Generic HTML for printing – independent of preview template; simple, clean layout
     const skillsHtml = (dataObj.skills || [])
       .map(
         (s) =>
@@ -698,7 +361,7 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
   <meta charset="UTF-8" />
   <title>Resume</title>
   <style>
-    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color:#111; }
+    body { font-family: system-ui, sans-serif; color:#111; }
     .page { width:210mm; min-height:297mm; padding:20mm; box-sizing:border-box; }
     h1 { font-size:28px; margin:0; }
     h2 { font-size:13px; text-transform:uppercase; letter-spacing:0.08em; margin-top:16px; margin-bottom:4px;}
@@ -742,11 +405,13 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
     try {
       const dataObj = buildDataObject();
       const html = buildHtmlForPdf(dataObj);
+
       const res = await api.post(
         "/api/pdf/export",
         { html },
         { responseType: "blob" }
       );
+
       const blob = new Blob([res.data], { type: "application/pdf" });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -773,10 +438,13 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
 
   return (
     <div className="min-h-screen flex bg-base-bg text-base-text">
-      {/* LEFT PANEL: form + AI tools */}
+      {/* LEFT PANEL */}
       <div className="w-full md:w-1/3 border-r border-base-border bg-base-card/80 p-6 space-y-5">
         <button
-          onClick={() => navigate("/dashboard")}
+          onClick={() => {
+            navigate("/dashboard");
+            handleBack();
+          }}
           className="text-xs text-base-subt hover:text-primary-500"
         >
           ← Back to dashboard
@@ -804,7 +472,7 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
             <input
               value={form.name}
               onChange={(e) => updateForm("name", e.target.value)}
-              className="w-full px-3 py-2 rounded-lg bg-base-bg border border-base-border text-sm focus:outline-none focus:ring-2 focus:ring-primary-300"
+              className="w-full px-3 py-2 rounded-lg bg-base-bg border border-base-border text-sm focus:ring-primary-300 focus:ring-2 outline-none"
             />
           </div>
 
@@ -815,7 +483,7 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
             <input
               value={form.role}
               onChange={(e) => updateForm("role", e.target.value)}
-              className="w-full px-3 py-2 rounded-lg bg-base-bg border border-base-border text-sm focus:outline-none focus:ring-2 focus:ring-primary-300"
+              className="w-full px-3 py-2 rounded-lg bg-base-bg border border-base-border text-sm focus:ring-primary-300 focus:ring-2 outline-none"
             />
           </div>
 
@@ -827,9 +495,10 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
               <input
                 value={form.email}
                 onChange={(e) => updateForm("email", e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-base-bg border border-base-border text-sm focus:outline-none focus:ring-2 focus:ring-primary-300"
+                className="w-full px-3 py-2 rounded-lg bg-base-bg border border-base-border text-sm focus:ring-primary-300 focus:ring-2 outline-none"
               />
             </div>
+
             <div className="space-y-1">
               <label className="text-xs uppercase tracking-wide text-base-subt">
                 Phone
@@ -837,13 +506,13 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
               <input
                 value={form.phone}
                 onChange={(e) => updateForm("phone", e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-base-bg border border-base-border text-sm focus:outline-none focus:ring-2 focus:ring-primary-300"
+                className="w-full px-3 py-2 rounded-lg bg-base-bg border border-base-border text-sm focus:ring-primary-300 focus:ring-2 outline-none"
               />
             </div>
           </div>
         </div>
 
-        {/* SKILLS + AI */}
+        {/* SKILLS */}
         <div className="space-y-2">
           <label className="text-xs uppercase tracking-wide text-base-subt">
             Skills (comma separated)
@@ -851,9 +520,10 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
           <input
             value={form.skillsText}
             onChange={(e) => updateForm("skillsText", e.target.value)}
-            placeholder="React, Node.js, MongoDB, Tailwind..."
-            className="w-full px-3 py-2 rounded-lg bg-base-bg border border-base-border text-sm focus:outline-none focus:ring-2 focus:ring-primary-300"
+            placeholder="React, Node.js, MongoDB..."
+            className="w-full px-3 py-2 rounded-lg bg-base-bg border border-base-border text-sm"
           />
+
           <AISkills
             onGenerated={(skills) =>
               updateForm("skillsText", skills.join(", "))
@@ -861,7 +531,7 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
           />
         </div>
 
-        {/* SUMMARY + AI */}
+        {/* SUMMARY */}
         <div className="space-y-2">
           <label className="text-xs uppercase tracking-wide text-base-subt">
             Summary
@@ -870,8 +540,9 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
             value={form.summary}
             onChange={(e) => updateForm("summary", e.target.value)}
             rows={4}
-            className="w-full px-3 py-2 rounded-lg bg-base-bg border border-base-border text-sm focus:outline-none focus:ring-2 focus:ring-primary-300"
+            className="w-full px-3 py-2 rounded-lg bg-base-bg border border-base-border text-sm"
           />
+
           <button
             type="button"
             onClick={handleAISummary}
@@ -882,9 +553,9 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
           </button>
         </div>
 
-        {/* EXPERIENCE SECTION */}
+        {/* EXPERIENCE */}
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
+          <div className="flex justify-between">
             <h2 className="text-xs uppercase tracking-wide text-base-subt">
               Experience
             </h2>
@@ -896,19 +567,23 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
               + Add
             </button>
           </div>
+
           <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
             {experiences.map((exp, i) => (
               <div
                 key={i}
                 className="bg-base-card border border-base-border rounded-lg p-3 space-y-2"
               >
-                <div className="flex justify-between items-center gap-2">
+                <div className="flex gap-2">
                   <input
                     className="flex-1 px-2 py-1 rounded border border-base-border text-xs bg-base-bg"
                     placeholder="Role"
                     value={exp.role}
                     onChange={(e) =>
-                      updateExperienceAt(i, { ...exp, role: e.target.value })
+                      updateExperienceAt(i, {
+                        ...exp,
+                        role: e.target.value,
+                      })
                     }
                   />
                   <input
@@ -923,19 +598,24 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
                     }
                   />
                 </div>
+
                 <input
                   className="w-full px-2 py-1 rounded border border-base-border text-xs bg-base-bg"
                   placeholder="Tech (React, Node.js...)"
                   value={exp.tech}
                   onChange={(e) =>
-                    updateExperienceAt(i, { ...exp, tech: e.target.value })
+                    updateExperienceAt(i, {
+                      ...exp,
+                      tech: e.target.value,
+                    })
                   }
                 />
+
                 <textarea
                   className="w-full px-2 py-1 rounded border border-base-border text-xs bg-base-bg"
                   rows={3}
                   placeholder="Bullets (one per line)"
-                  value={exp.bulletsText || ""}
+                  value={exp.bulletsText}
                   onChange={(e) =>
                     updateExperienceAt(i, {
                       ...exp,
@@ -943,11 +623,13 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
                     })
                   }
                 />
+
                 <div className="flex justify-between items-center">
                   <AIExperience
                     experience={exp}
                     onUpdate={(updated) => updateExperienceAt(i, updated)}
                   />
+
                   <button
                     type="button"
                     onClick={() => removeExperience(i)}
@@ -958,17 +640,18 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
                 </div>
               </div>
             ))}
+
             {experiences.length === 0 && (
               <p className="text-xs text-base-subt">
-                Add your first experience. Use AI to create bullet points.
+                Add your first experience. Use AI to generate bullet points.
               </p>
             )}
           </div>
         </div>
 
-        {/* PROJECTS SECTION + AI */}
+        {/* PROJECTS */}
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
+          <div className="flex justify-between">
             <h2 className="text-xs uppercase tracking-wide text-base-subt">
               Projects
             </h2>
@@ -980,6 +663,7 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
               + Add
             </button>
           </div>
+
           <div className="space-y-3 max-h-56 overflow-y-auto pr-1">
             {projects.map((p, i) => (
               <div
@@ -994,6 +678,7 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
                     updateProjectAt(i, { ...p, name: e.target.value })
                   }
                 />
+
                 <textarea
                   className="w-full px-2 py-1 rounded border border-base-border text-xs bg-base-bg"
                   rows={2}
@@ -1003,14 +688,19 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
                     updateProjectAt(i, { ...p, desc: e.target.value })
                   }
                 />
+
                 <input
                   className="w-full px-2 py-1 rounded border border-base-border text-xs bg-base-bg"
                   placeholder="Tech (React, Node.js...)"
                   value={p.techText}
                   onChange={(e) =>
-                    updateProjectAt(i, { ...p, techText: e.target.value })
+                    updateProjectAt(i, {
+                      ...p,
+                      techText: e.target.value,
+                    })
                   }
                 />
+
                 <div className="flex justify-end">
                   <button
                     type="button"
@@ -1022,18 +712,20 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
                 </div>
               </div>
             ))}
+
             {projects.length === 0 && (
               <p className="text-xs text-base-subt">
                 Add some projects or generate with AI below.
               </p>
             )}
           </div>
+
           <AIProjects
             onGenerated={(aiProjects) =>
               setProjects(
-                (aiProjects || []).map((p) => ({
-                  name: p.name || "",
-                  desc: p.desc || "",
+                aiProjects.map((p) => ({
+                  name: p.name,
+                  desc: p.desc,
                   techText: (p.tech || []).join(", "),
                 }))
               )
@@ -1050,6 +742,7 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
           >
             {saving ? "Saving..." : "Save"}
           </button>
+
           <button
             onClick={handleExportPdf}
             disabled={pdfLoading}
@@ -1060,7 +753,7 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
         </div>
       </div>
 
-      {/* RIGHT PANEL: Preview */}
+      {/* PREVIEW PANEL */}
       <div className="hidden md:flex flex-1 items-center justify-center p-6">
         <PreviewComponent data={dataObj} />
       </div>

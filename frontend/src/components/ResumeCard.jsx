@@ -9,7 +9,7 @@ export default function ResumeCard({ resume, onClick, onDelete }) {
       onClick={onClick}
     >
       <h3 className="font-semibold mb-1 group-hover:text-primary-500">
-        {resume.title}
+        {resume.header?.name || "Untitled Resume"}
       </h3>
       <p className="text-xs text-base-subt">
         Template: {resume.template || "minimal"}

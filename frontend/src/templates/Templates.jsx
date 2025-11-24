@@ -1,4 +1,6 @@
-function TemplateMinimal({ data }) {
+import React from "react";
+
+export function TemplateMinimal({ data }) {
   const header = data.header || {};
   const skills = data.skills || [];
   const experience = data.experience || [];
@@ -6,7 +8,6 @@ function TemplateMinimal({ data }) {
 
   return (
     <div className="bg-white text-black p-8 shadow-xl max-w-[210mm] min-h-[297mm] mx-auto">
-      {/* HEADER */}
       <div className="border-b border-gray-300 pb-3 mb-4">
         <h1 className="text-3xl font-bold">{header.name || "Your Name"}</h1>
         <p className="text-sm text-gray-600">
@@ -19,7 +20,6 @@ function TemplateMinimal({ data }) {
         </p>
       </div>
 
-      {/* SUMMARY */}
       <section className="mb-4">
         <h2 className="text-sm font-semibold tracking-wide text-gray-700 uppercase">
           Summary
@@ -29,7 +29,6 @@ function TemplateMinimal({ data }) {
         </p>
       </section>
 
-      {/* SKILLS */}
       <section className="mb-4">
         <h2 className="text-sm font-semibold tracking-wide text-gray-700 uppercase">
           Skills
@@ -52,7 +51,6 @@ function TemplateMinimal({ data }) {
         </div>
       </section>
 
-      {/* EXPERIENCE */}
       {experience.length > 0 && (
         <section className="mb-4">
           <h2 className="text-sm font-semibold tracking-wide text-gray-700 uppercase">
@@ -73,7 +71,6 @@ function TemplateMinimal({ data }) {
         </section>
       )}
 
-      {/* PROJECTS */}
       {projects.length > 0 && (
         <section className="mb-4">
           <h2 className="text-sm font-semibold tracking-wide text-gray-700 uppercase">
@@ -96,7 +93,7 @@ function TemplateMinimal({ data }) {
   );
 }
 
-function TemplateModern({ data }) {
+export function TemplateModern({ data }) {
   const header = data.header || {};
   const skills = data.skills || [];
   const experience = data.experience || [];
@@ -104,7 +101,6 @@ function TemplateModern({ data }) {
 
   return (
     <div className="p-8 shadow-xl bg-white text-black max-w-[210mm] min-h-[297mm] mx-auto">
-      {/* Header row */}
       <div className="flex justify-between items-center border-b border-gray-300 pb-3 mb-4">
         <div>
           <h1 className="text-3xl font-bold">{header.name || "Your Name"}</h1>
@@ -118,7 +114,6 @@ function TemplateModern({ data }) {
         </div>
       </div>
 
-      {/* SUMMARY */}
       <section className="mb-4">
         <h2 className="text-sm font-semibold text-primary-500 uppercase tracking-wide">
           Summary
@@ -126,7 +121,6 @@ function TemplateModern({ data }) {
         <p className="text-sm mt-1 whitespace-pre-line">{data.summary}</p>
       </section>
 
-      {/* SKILLS */}
       <section className="mb-4">
         <h2 className="text-sm font-semibold text-primary-500 uppercase tracking-wide">
           Skills
@@ -138,9 +132,8 @@ function TemplateModern({ data }) {
         </ul>
       </section>
 
-      {/* EXPERIENCE */}
       {experience.length > 0 && (
-        <section className="mb-4">
+        <section>
           <h2 className="text-sm font-semibold text-primary-500 uppercase tracking-wide">
             Experience
           </h2>
@@ -159,9 +152,8 @@ function TemplateModern({ data }) {
         </section>
       )}
 
-      {/* PROJECTS */}
       {projects.length > 0 && (
-        <section className="mb-4">
+        <section>
           <h2 className="text-sm font-semibold text-primary-500 uppercase tracking-wide">
             Projects
           </h2>
@@ -182,7 +174,7 @@ function TemplateModern({ data }) {
   );
 }
 
-function TemplateTwoColumn({ data }) {
+export function TemplateTwoColumn({ data }) {
   const header = data.header || {};
   const skills = data.skills || [];
   const experience = data.experience || [];
@@ -190,7 +182,6 @@ function TemplateTwoColumn({ data }) {
 
   return (
     <div className="p-8 shadow-xl bg-white text-black max-w-[210mm] min-h-[297mm] mx-auto grid grid-cols-3 gap-6">
-      {/* LEFT COLUMN */}
       <div className="col-span-1 border-r border-gray-300 pr-4">
         <h1 className="text-2xl font-bold">{header.name || "Your Name"}</h1>
         <p className="text-gray-600 text-sm">{header.role || "Your Role"}</p>
@@ -209,7 +200,6 @@ function TemplateTwoColumn({ data }) {
         </ul>
       </div>
 
-      {/* RIGHT COLUMN */}
       <div className="col-span-2">
         <section className="mb-4">
           <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
@@ -239,7 +229,7 @@ function TemplateTwoColumn({ data }) {
         )}
 
         {projects.length > 0 && (
-          <section className="mb-4">
+          <section>
             <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
               Projects
             </h2>
@@ -260,5 +250,3 @@ function TemplateTwoColumn({ data }) {
     </div>
   );
 }
-
-export { TemplateMinimal, TemplateModern, TemplateTwoColumn };
