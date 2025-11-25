@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../services/api";
-const [saveState, setSaveState] = useState("Saved");
 
 import {
   TemplateMinimal,
@@ -33,17 +32,19 @@ export default function Editor() {
   const [saving, setSaving] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [summaryLoading, setSummaryLoading] = useState(false);
+  const [saveState, setSaveState] = useState("");
+  const [toast, setToast] = useState("");
 
   // LOAD RESUME
   useEffect(() => {
     if (id === "new") {
       setResumeDoc({
         _id: null,
-        template: "minimal",
+        template: "Minimal",
         resumeJson: "{}",
       });
 
-      setTemplate("minimal");
+      setTemplate("Minimal");
 
       setForm({
         name: "",
@@ -73,7 +74,7 @@ export default function Editor() {
         }
 
         setResumeDoc(r);
-        setTemplate(r.template || "minimal");
+        setTemplate(r.template || "Minimal");
         setForm({
           name: data.header?.name || "",
           role: data.header?.role || "",
@@ -109,6 +110,11 @@ export default function Editor() {
 
     loadExisting();
   }, [id, navigate]);
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(""), 2000);
+  };
 
   const updateForm = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -307,7 +313,7 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
         template,
         resumeJson: JSON.stringify(dataObj),
       });
-      alert("Saved!");
+      //alert("Saved!");
     } catch (err) {
       alert("Save failed");
     } finally {
@@ -433,8 +439,8 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
   const dataObj = buildDataObject();
 
   let PreviewComponent = TemplateMinimal;
-  if (template === "modern") PreviewComponent = TemplateModern;
-  if (template === "twocol") PreviewComponent = TemplateTwoColumn;
+  if (template === "Modern") PreviewComponent = TemplateModern;
+  if (template === "Two-column") PreviewComponent = TemplateTwoColumn;
 
   return (
     <div className="min-h-screen flex bg-base-bg text-base-text">
@@ -444,6 +450,7 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
           onClick={() => {
             navigate("/dashboard");
             handleBack();
+            showToast("Saved successfully!");
           }}
           className="text-xs text-base-subt hover:text-primary-500"
         >
@@ -457,9 +464,9 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
             onChange={(e) => setTemplate(e.target.value)}
             className="text-xs px-2 py-1 rounded-lg border border-base-border bg-base-bg"
           >
-            <option value="minimal">Minimal</option>
-            <option value="modern">Modern</option>
-            <option value="twocol">Two-column</option>
+            <option value="Minimal">Minimal</option>
+            <option value="Modern">Modern</option>
+            <option value="Two-column">Two-column</option>
           </select>
         </div>
 
@@ -736,7 +743,10 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
         {/* ACTION BUTTONS */}
         <div className="flex gap-2 pt-2">
           <button
-            onClick={handleSave}
+            onClick={() => {
+              handleSave();
+              showToast("Saved successfully!");
+            }}
             disabled={saving}
             className="flex-1 py-2 rounded-lg bg-primary-500 text-white font-semibold text-sm hover:bg-primary-hover disabled:opacity-60"
           >
@@ -754,9 +764,31 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
       </div>
 
       {/* PREVIEW PANEL */}
-      <div className="hidden md:flex flex-1 items-center justify-center p-6">
-        <PreviewComponent data={dataObj} />
+      <div className="hidden md:flex flex-1 overflow-auto p-6 justify-center items-start">
+        <div className="shadow-xl">
+          <div className="bg-white w-[210mm] min-h-[297mm] p-8 overflow-y-auto">
+            <PreviewComponent data={dataObj} />
+          </div>
+        </div>
       </div>
+
+      {/* TOAST */}
+      {toast && (
+        <div
+          className="
+    fixed bottom-6 right-6 
+    bg-black text-white 
+    px-4 py-2 rounded-lg text-sm 
+    shadow-lg animate-fade
+  "
+        >
+          {toast}
+        </div>
+      )}
     </div>
   );
+}
+
+{
+  /* bg-white shadow-xl w-[210mm] min-h-[297mm] p-0 */
 }

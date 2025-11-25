@@ -118,7 +118,9 @@ export function TemplateModern({ data }) {
         <h2 className="text-sm font-semibold text-primary-500 uppercase tracking-wide">
           Summary
         </h2>
-        <p className="text-sm mt-1 whitespace-pre-line">{data.summary}</p>
+        <p className="text-sm mt-1 whitespace-pre-line">
+          {data.summary || "Write a short, impactful summary here."}
+        </p>
       </section>
 
       <section className="mb-4">
@@ -128,7 +130,7 @@ export function TemplateModern({ data }) {
         <ul className="list-disc ml-5 text-sm">
           {skills.length
             ? skills.map((s, i) => <li key={i}>{s}</li>)
-            : "Add your skills"}
+            : "Add skills like React, JavaScript, Node.js..."}
         </ul>
       </section>
 
@@ -196,7 +198,7 @@ export function TemplateTwoColumn({ data }) {
         <ul className="list-disc ml-5 text-xs mt-1">
           {skills.length
             ? skills.map((s, i) => <li key={i}>{s}</li>)
-            : "Add your skills"}
+            : "Add skills like React, JavaScript, Node.js..."}
         </ul>
       </div>
 
@@ -205,7 +207,9 @@ export function TemplateTwoColumn({ data }) {
           <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
             Summary
           </h2>
-          <p className="text-sm mt-1 whitespace-pre-line">{data.summary}</p>
+          <p className="text-sm mt-1 whitespace-pre-line">
+            {data.summary || "Write a short, impactful summary here."}
+          </p>
         </section>
 
         {experience.length > 0 && (

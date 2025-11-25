@@ -16,7 +16,7 @@ export default function Dashboard() {
       const res = await api.get("/api/resumes");
       setResumes(res.data || []);
     } catch (err) {
-      console.error(err);
+      console.error("Failed to fetch resumes:", err);
     } finally {
       setLoading(false);
     }
@@ -48,6 +48,7 @@ export default function Dashboard() {
     <div className="max-w-5xl mx-auto px-4 py-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Your resumes</h2>
+
         <button
           onClick={handleNew}
           className="px-4 py-2 rounded-lg bg-primary-500 text-white font-semibold hover:bg-primary-hover"
@@ -75,6 +76,7 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* DELETE CONFIRMATION */}
       <DeleteModal
         open={!!deleteId}
         onClose={() => setDeleteId(null)}
