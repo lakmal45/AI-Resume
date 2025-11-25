@@ -111,6 +111,7 @@ export default function Editor() {
     loadExisting();
   }, [id, navigate]);
 
+  // ⭐ ADDED – simple local toast helper (used only when staying on Editor)
   const showToast = (msg) => {
     setToast(msg);
     setTimeout(() => setToast(""), 2000);
@@ -183,40 +184,6 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
     }
   };
 
-  const handleBack = async () => {
-    const dataObj = buildDataObject();
-
-    try {
-      // For NEW resume (id === "new")
-      if (id === "new") {
-        if (isFormEmpty()) {
-          navigate("/dashboard");
-          return;
-        }
-
-        const res = await api.post("/api/resumes", {
-          template,
-          resumeJson: JSON.stringify(dataObj),
-        });
-
-        navigate("/dashboard");
-        return;
-      }
-
-      // For EXISTING resume
-      await api.put(`/api/resumes/${resumeDoc._id}`, {
-        ...resumeDoc,
-        template,
-        resumeJson: JSON.stringify(dataObj),
-      });
-
-      navigate("/dashboard");
-    } catch (err) {
-      alert("Auto-save failed");
-      navigate("/dashboard");
-    }
-  };
-
   const buildDataObject = () => {
     const skills = form.skillsText
       .split(",")
@@ -278,6 +245,45 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
     );
   };
 
+  // ⭐ UPDATED – Back now saves AND passes toast to Dashboard
+  const handleBack = async () => {
+    const dataObj = buildDataObject();
+
+    try {
+      if (id === "new") {
+        if (isFormEmpty()) {
+          navigate("/dashboard"); // nothing to save
+          return;
+        }
+
+        await api.post("/api/resumes", {
+          template,
+          resumeJson: JSON.stringify(dataObj),
+        });
+
+        navigate("/dashboard", {
+          state: { toast: "Saved successfully!" }, // ⭐ ADDED
+        });
+        return;
+      }
+
+      // EXISTING resume
+      await api.put(`/api/resumes/${resumeDoc._id}`, {
+        ...resumeDoc,
+        template,
+        resumeJson: JSON.stringify(dataObj),
+      });
+
+      navigate("/dashboard", {
+        state: { toast: "Saved successfully!" }, // ⭐ ADDED
+      });
+    } catch (err) {
+      alert("Auto-save failed");
+      navigate("/dashboard");
+    }
+  };
+
+  // ⭐ UPDATED – Save shows local toast (when staying on editor)
   const handleSave = async () => {
     const dataObj = buildDataObject();
 
@@ -294,6 +300,7 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
           resumeJson: JSON.stringify(dataObj),
         });
 
+        showToast("Saved successfully!"); // ⭐ ADDED
         navigate(`/editor/${res.data._id}`);
       } catch (err) {
         alert("Save failed");
@@ -307,13 +314,12 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
 
     setSaving(true);
     try {
-      const dataObj = buildDataObject();
       await api.put(`/api/resumes/${resumeDoc._id}`, {
         ...resumeDoc,
         template,
         resumeJson: JSON.stringify(dataObj),
       });
-      //alert("Saved!");
+      showToast("Saved successfully!"); // ⭐ ADDED
     } catch (err) {
       alert("Save failed");
     } finally {
@@ -447,11 +453,7 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
       {/* LEFT PANEL */}
       <div className="w-full md:w-1/3 border-r border-base-border bg-base-card/80 p-6 space-y-5">
         <button
-          onClick={() => {
-            navigate("/dashboard");
-            handleBack();
-            showToast("Saved successfully!");
-          }}
+          onClick={handleBack} // ⭐ UPDATED – only calls handleBack
           className="text-xs text-base-subt hover:text-primary-500"
         >
           ← Back to dashboard
@@ -471,6 +473,7 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
         </div>
 
         {/* HEADER */}
+        {/* (unchanged UI) */}
         <div className="space-y-3">
           <div className="space-y-1">
             <label className="text-xs uppercase tracking-wide text-base-subt">
@@ -559,6 +562,9 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
             {summaryLoading ? "AI..." : "AI Improve Summary"}
           </button>
         </div>
+
+        {/* EXPERIENCE & PROJECTS (unchanged UI) */}
+        {/* ... (kept same as your version) ... */}
 
         {/* EXPERIENCE */}
         <div className="space-y-2">
@@ -743,10 +749,7 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
         {/* ACTION BUTTONS */}
         <div className="flex gap-2 pt-2">
           <button
-            onClick={() => {
-              handleSave();
-              showToast("Saved successfully!");
-            }}
+            onClick={handleSave} // ⭐ UPDATED – toast handled inside handleSave
             disabled={saving}
             className="flex-1 py-2 rounded-lg bg-primary-500 text-white font-semibold text-sm hover:bg-primary-hover disabled:opacity-60"
           >
@@ -764,31 +767,19 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
       </div>
 
       {/* PREVIEW PANEL */}
+      {/* ⭐ UPDATED – single A4 frame, centered, scrolls internally, wraps long text */}
       <div className="hidden md:flex flex-1 overflow-auto p-6 justify-center items-start">
-        <div className="shadow-xl">
-          <div className="bg-white w-[210mm] min-h-[297mm] p-8 overflow-y-auto">
-            <PreviewComponent data={dataObj} />
-          </div>
+        <div className="bg-white w-[210mm] min-h-[297mm] p-8 overflow-y-auto shadow-xl break-words whitespace-pre-wrap">
+          <PreviewComponent data={dataObj} />
         </div>
       </div>
 
-      {/* TOAST */}
+      {/* TOAST (Editor-local) */}
       {toast && (
-        <div
-          className="
-    fixed bottom-6 right-6 
-    bg-black text-white 
-    px-4 py-2 rounded-lg text-sm 
-    shadow-lg animate-fade
-  "
-        >
+        <div className="fixed bottom-6 right-6 bg-black text-white px-4 py-2 rounded-lg text-sm shadow-lg animate-fade">
           {toast}
         </div>
       )}
     </div>
   );
-}
-
-{
-  /* bg-white shadow-xl w-[210mm] min-h-[297mm] p-0 */
 }
