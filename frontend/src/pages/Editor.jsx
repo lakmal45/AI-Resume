@@ -557,7 +557,7 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
             type="button"
             onClick={handleAISummary}
             disabled={summaryLoading}
-            className="text-xs px-3 py-1.5 rounded-lg bg-primary-500 text-white font-semibold hover:bg-primary-hover disabled:opacity-60"
+            className="text-xs px-3 py-1.5 rounded-lg bg-purple-500 text-white font-semibold hover:bg-purple-600 disabled:opacity-60"
           >
             {summaryLoading ? "AI..." : "AI Improve Summary"}
           </button>
@@ -751,7 +751,7 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
           <button
             onClick={handleSave} // ⭐ UPDATED – toast handled inside handleSave
             disabled={saving}
-            className="flex-1 py-2 rounded-lg bg-primary-500 text-white font-semibold text-sm hover:bg-primary-hover disabled:opacity-60"
+            className="flex-1 py-2 rounded-lg bg-purple-500 text-white font-semibold text-sm hover:bg-purple-600 disabled:opacity-60"
           >
             {saving ? "Saving..." : "Save"}
           </button>
@@ -776,7 +776,14 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
 
       {/* TOAST (Editor-local) */}
       {toast && (
-        <div className="fixed bottom-6 right-6 bg-black text-white px-4 py-2 rounded-lg text-sm shadow-lg animate-fade">
+        <div
+          className="
+      fixed bottom-6 right-6 
+      bg-purple-600 text-white shadow-lg 
+      px-5 py-3 rounded-xl text-sm font-medium
+      animate-toast
+    "
+        >
           {toast}
         </div>
       )}

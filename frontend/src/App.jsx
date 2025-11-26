@@ -16,9 +16,9 @@ function ProtectedRoute({ children }) {
 
 function Layout({ children }) {
   const location = useLocation();
-  const hideChrome = ["/login", "/register"].includes(location.pathname);
+  //const hideChrome = ["/login", "/register"].includes(location.pathname);
 
-  if (hideChrome) return children;
+  //if (hideChrome) return children;
 
   return (
     <div className="min-h-screen flex flex-col bg-base-bg text-base-text">

@@ -31,7 +31,7 @@ export function AISkills({ onGenerated }) {
       <button
         onClick={generate}
         disabled={loading}
-        className="px-3 py-1.5 rounded-lg bg-primary-500 text-white text-xs font-semibold hover:bg-primary-hover disabled:opacity-60"
+        className="px-3 py-1.5 rounded-lg bg-purple-500 text-white text-xs font-semibold hover:bg-purple-600 disabled:opacity-60"
       >
         {loading ? "Generating..." : "Generate Skills"}
       </button>
@@ -72,7 +72,7 @@ export function AIExperience({ experience, onUpdate }) {
       type="button"
       onClick={generate}
       disabled={loading}
-      className="text-xs px-3 py-1 rounded-lg bg-primary-500 text-white hover:bg-primary-hover disabled:opacity-60"
+      className="text-xs px-3 py-1 rounded-lg bg-purple-500 text-white hover:bg-purple-600 disabled:opacity-60"
     >
       {loading ? "AI..." : "AI Bullets"}
     </button>
@@ -116,7 +116,7 @@ export function AIProjects({ onGenerated }) {
       <button
         onClick={generate}
         disabled={loading}
-        className="px-3 py-1.5 rounded-lg bg-primary-500 text-white text-xs font-semibold hover:bg-primary-hover disabled:opacity-60"
+        className="px-3 py-1.5 rounded-lg bg-purple-500 text-white text-xs font-semibold hover:bg-purple-600 disabled:opacity-60"
       >
         {loading ? "Generating..." : "Generate Projects"}
       </button>
