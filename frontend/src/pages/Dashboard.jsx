@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom"; // ⭐ UPDATED
 import { api } from "../services/api";
 import ResumeCard from "../components/ResumeCard.jsx";
 import { DeleteModal } from "../components/DeleteModal.jsx";
@@ -10,6 +10,8 @@ export default function Dashboard() {
   const [deleteId, setDeleteId] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation(); // ⭐ ADDED
+  const [toast, setToast] = useState(location.state?.toast || ""); // ⭐ ADDED
 
   const fetchResumes = async () => {
     try {
@@ -26,8 +28,15 @@ export default function Dashboard() {
     fetchResumes();
   }, []);
 
+  // ⭐ ADDED – auto-hide toast after 2s
+  useEffect(() => {
+    if (toast) {
+      const t = setTimeout(() => setToast(""), 2000);
+      return () => clearTimeout(t);
+    }
+  }, [toast]);
+
   const handleNew = () => {
-    // Navigate to a fresh editor; it will only create on first save if user types.
     navigate("/editor/new");
   };
 
@@ -44,6 +53,7 @@ export default function Dashboard() {
       setDeleting(false);
     }
   };
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-6">
       <div className="flex justify-between items-center mb-4">
@@ -51,7 +61,7 @@ export default function Dashboard() {
 
         <button
           onClick={handleNew}
-          className="px-4 py-2 rounded-lg bg-primary-500 text-white font-semibold hover:bg-primary-hover"
+          className="px-4 py-2 rounded-lg bg-purple-500 text-white font-semibold hover:bg-purple-600"
         >
           + New Resume
         </button>
@@ -83,6 +93,13 @@ export default function Dashboard() {
         onConfirm={confirmDelete}
         loading={deleting}
       />
+
+      {/* ⭐ ADDED – dashboard toast (used when coming back from Editor) */}
+      {toast && (
+        <div className="fixed bottom-6 right-6 bg-black text-white px-4 py-2 rounded-lg text-sm shadow-lg">
+          {toast}
+        </div>
+      )}
     </div>
   );
 }
