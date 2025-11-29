@@ -7,6 +7,7 @@ import Home from "./pages/Home.jsx";
 import Profile from "./pages/Profile.jsx";
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
+import LinkedIn from "./pages/LinkedIn.jsx";
 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
@@ -36,6 +37,7 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/linkedin-import" element={<LinkedIn />} />
         <Route
           path="/dashboard"
           element={

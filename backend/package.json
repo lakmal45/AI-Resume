@@ -15,15 +15,29 @@
   "dependencies": {
     "@google/genai": "^1.30.0",
     "@google/generative-ai": "^0.24.1",
+    "adm-zip": "^0.5.16",
+    "axios": "^1.13.2",
     "bcryptjs": "^2.4.3",
+    "canvas": "^3.2.0",
     "cors": "^2.8.5",
+    "csv-parse": "^6.1.0",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "form-data": "^4.0.5",
     "groq-sdk": "^0.36.0",
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^8.20.0",
+    "multer": "^2.0.2",
+    "node-cron": "^4.2.1",
     "openai": "^4.14.1",
-    "puppeteer": "^24.31.0"
+    "pdf-lib": "^1.17.1",
+    "pdf-parse": "^2.4.5",
+    "pdf-poppler": "^0.2.3",
+    "pdfjs-dist": "^2.16.105",
+    "pdfreader": "^3.0.8",
+    "puppeteer": "^24.31.0",
+    "tesseract.js": "^6.0.1",
+    "unpdf": "^1.4.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.11"

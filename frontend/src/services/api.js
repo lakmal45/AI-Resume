@@ -12,3 +12,14 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+export async function uploadLinkedInPdf(file, userId) {
+  const form = new FormData();
+  form.append("pdf", file);
+
+  return api
+    .post("/api/linkedin/import", form, {
+      headers: { "Content-Type": "multipart/form-data" },
+    })
+    .then((res) => res.data);
+}

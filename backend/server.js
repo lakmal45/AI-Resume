@@ -7,6 +7,9 @@ import pdfRoutes from "./routes/pdfRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import resumeRoutes from "./routes/resumeRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
+import linkedinRoutes from "./routes/linkedinRoutes.js";
+import cron from "node-cron";
+import { deleteFolderContents } from "./utils/cleanup.js";
 
 dotenv.config();
 console.log("Loaded GROQ key:", process.env.GROQ_API_KEY);
@@ -24,6 +27,13 @@ app.use("/auth", authRoutes);
 app.use("/api/resumes", resumeRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/pdf", pdfRoutes);
+app.use("/api/linkedin", linkedinRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`✅ Backend running on ${PORT}`));
+
+cron.schedule("0 3 * * *", () => {
+  console.log("Running daily cleanup...");
+  deleteFolderContents("uploads");
+  deleteFolderContents("uploads/pdf_images");
+});

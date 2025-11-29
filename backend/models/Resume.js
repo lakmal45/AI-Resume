@@ -5,6 +5,11 @@ const ResumeSchema = new mongoose.Schema({
   title: String,
   template: String,
   resumeJson: String,
+  source: {
+    type: String,
+    enum: ["manual", "linkedin"],
+    default: "manual",
+  },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
