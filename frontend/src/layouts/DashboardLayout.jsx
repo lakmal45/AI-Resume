@@ -10,7 +10,7 @@ export default function DashboardLayout({ children }) {
 
   const menuItems = [
     { label: "Resumes", icon: "📄", path: "/dashboard" },
-    { label: "Profile", icon: "👤", path: "/profile" },
+    { label: "LinkedIn Import", icon: "👤", path: "/linkedin-import" },
     { label: "Settings", icon: "⚙️", path: "#" },
     { label: "Billing", icon: "💳", path: "#" },
   ];
@@ -77,14 +77,14 @@ export default function DashboardLayout({ children }) {
             </motion.button>
           ))}
 
-          {/* LOGOUT */}
+          {/* LOGOUT 
           <motion.button
             whileHover={{ scale: 1.02 }}
             onClick={() => navigate("/login")}
             className="w-full text-left px-3 py-2 rounded-md flex items-center gap-2 text-red-500 hover:bg-red-50"
           >
             🚪 Logout
-          </motion.button>
+          </motion.button>*/}
         </nav>
       </aside>
 

@@ -1,5 +1,3 @@
-// routes/aiRoutes.js
-// Groq-powered AI routes for AI Resume Builder
 import dotenv from "dotenv";
 import express from "express";
 import Groq from "groq-sdk";
