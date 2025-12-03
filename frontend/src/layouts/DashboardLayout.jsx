@@ -11,8 +11,8 @@ export default function DashboardLayout({ children }) {
   const menuItems = [
     { label: "Resumes", icon: "📄", path: "/dashboard" },
     { label: "LinkedIn Import", icon: "👤", path: "/linkedin-import" },
-    { label: "Settings", icon: "⚙️", path: "#" },
-    { label: "Billing", icon: "💳", path: "#" },
+    { label: "Job Scanner", icon: "⚙️", path: "/jobscanner" },
+    { label: "ATS Analyzer", icon: "💳", path: "/atsanalyzer" },
   ];
 
   const isActive = (path) => location.pathname === path;
@@ -93,5 +93,3 @@ export default function DashboardLayout({ children }) {
     </div>
   );
 }
-
-//min-h-screen
