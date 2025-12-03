@@ -4,7 +4,9 @@ import { useState, useRef, useEffect } from "react";
 export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
-  const token = localStorage.getItem("token");
+
+  // ✅ FIX: read new token key
+  const token = localStorage.getItem("accessToken");
 
   const [menuOpen, setMenuOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -14,7 +16,8 @@ export default function Navbar() {
   }, [token]);
 
   const onLogout = () => {
-    localStorage.removeItem("token");
+    // ✅ FIX: remove new token key
+    localStorage.removeItem("accessToken");
     navigate("/");
   };
 
