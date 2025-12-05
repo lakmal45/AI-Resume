@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { api } from "../services/api";
+import Button from "./ui/Button";
 
 export function AISkills({ onGenerated }) {
   const [keywords, setKeywords] = useState("");
@@ -28,13 +29,9 @@ export function AISkills({ onGenerated }) {
         value={keywords}
         onChange={(e) => setKeywords(e.target.value)}
       />
-      <button
-        onClick={generate}
-        disabled={loading}
-        className="px-3 py-1.5 rounded-lg bg-purple-500 text-white text-xs font-semibold hover:bg-purple-600 disabled:opacity-60"
-      >
+      <Button size="sm" onClick={generate} disabled={loading}>
         {loading ? "Generating..." : "Generate Skills"}
-      </button>
+      </Button>
     </div>
   );
 }
@@ -68,14 +65,9 @@ export function AIExperience({ experience, onUpdate }) {
   };
 
   return (
-    <button
-      type="button"
-      onClick={generate}
-      disabled={loading}
-      className="text-xs px-3 py-1 rounded-lg bg-purple-500 text-white hover:bg-purple-600 disabled:opacity-60"
-    >
+    <Button size="sm" type="button" onClick={generate} disabled={loading}>
       {loading ? "AI..." : "AI Bullets"}
-    </button>
+    </Button>
   );
 }
 
@@ -113,13 +105,9 @@ export function AIProjects({ onGenerated }) {
         value={keywords}
         onChange={(e) => setKeywords(e.target.value)}
       />
-      <button
-        onClick={generate}
-        disabled={loading}
-        className="px-3 py-1.5 rounded-lg bg-purple-500 text-white text-xs font-semibold hover:bg-purple-600 disabled:opacity-60"
-      >
+      <Button size="sm" onClick={generate} disabled={loading}>
         {loading ? "Generating..." : "Generate Projects"}
-      </button>
+      </Button>
     </div>
   );
 }

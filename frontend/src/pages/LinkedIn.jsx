@@ -3,6 +3,7 @@ import { uploadLinkedInPdf } from "../services/api";
 import DashboardLayout from "../layouts/DashboardLayout";
 import ResumeCard from "../components/ResumeCard";
 import { api } from "../services/api";
+import Button from "../components/ui/Button";
 
 export default function LinkedInImport() {
   const [resumes, setResumes] = useState([]);
@@ -103,13 +104,7 @@ export default function LinkedInImport() {
       {/* HEADER */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">LinkedIn Import Resumes</h2>
-
-        <button
-          onClick={() => setModalOpen(true)}
-          className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
-        >
-          Import PDF
-        </button>
+        <Button onClick={() => setModalOpen(true)}>Import PDF</Button>
       </div>
 
       {/* LOADING */}

@@ -8,18 +8,26 @@ import Profile from "./pages/Profile.jsx";
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
 import LinkedIn from "./pages/LinkedIn.jsx";
+import JobScanner from "./pages/JobScanner.jsx";
+import ATSAnalyzer from "./pages/ATSAnalyzer.jsx";
 
 function ProtectedRoute({ children }) {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("accessToken");
   if (!token) return <Navigate to="/login" replace />;
   return children;
 }
 
-function Layout({ children }) {
+/*function Layout({ children }) {
+  //const hideChrome = ["/editor/:id"].includes(location.pathname);
   const location = useLocation();
-  //const hideChrome = ["/login", "/register"].includes(location.pathname);
 
-  //if (hideChrome) return children;
+  const staticHiddenPaths = ["/linkedin-import", "/dashboard"];
+
+  const hideChrome =
+    matchPath({ path: "/editor/:id", end: false }, location.pathname) ||
+    staticHiddenPaths.includes(location.pathname);
+
+  if (hideChrome) return children;
 
   return (
     <div className="min-h-screen flex flex-col bg-base-bg text-base-text">
@@ -28,6 +36,9 @@ function Layout({ children }) {
       <Footer />
     </div>
   );
+}*/
+function Layout({ children }) {
+  return <div className="layout">{children}</div>;
 }
 
 export default function App() {
@@ -37,7 +48,6 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/linkedin-import" element={<LinkedIn />} />
         <Route
           path="/dashboard"
           element={
@@ -59,6 +69,30 @@ export default function App() {
           element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/linkedin-import"
+          element={
+            <ProtectedRoute>
+              <LinkedIn />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/jobscanner"
+          element={
+            <ProtectedRoute>
+              <JobScanner />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/atsanalyzer"
+          element={
+            <ProtectedRoute>
+              <ATSAnalyzer />
             </ProtectedRoute>
           }
         />

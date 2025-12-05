@@ -4,6 +4,7 @@ import { api } from "../services/api";
 import DashboardLayout from "../layouts/DashboardLayout";
 import ResumeCard from "../components/ResumeCard";
 import { DeleteModal } from "../components/DeleteModal";
+import Button from "../components/ui/Button";
 
 export default function Dashboard() {
   const [resumes, setResumes] = useState([]);
@@ -46,13 +47,9 @@ export default function Dashboard() {
     <DashboardLayout>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Your resumes</h2>
-
-        <button
-          onClick={() => navigate("/editor/new")}
-          className="px-4 py-2 rounded-lg bg-purple-500 text-white hover:bg-purple-600"
-        >
+        <Button variant="default" onClick={() => navigate("/editor/new")}>
           + New Resume
-        </button>
+        </Button>
       </div>
 
       {loading ? (
@@ -95,7 +92,7 @@ export default function Dashboard() {
         <div
           className="
       fixed bottom-6 right-6 
-      bg-purple-600 text-white shadow-lg 
+      bg-primary text-white shadow-lg
       px-5 py-3 rounded-xl text-sm font-medium
       animate-toast
     "
