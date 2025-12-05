@@ -1,73 +1,93 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { api } from "../services/api";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
   const handleLogin = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // 🔥 Prevent page reload
+    setErrorMsg("");
     setLoading(true);
+
     try {
-      const res = await api.post("/auth/login", { email, password });
-      localStorage.setItem("token", res.data.token);
+      const res = await api.post("/auth/login", {
+        email,
+        password,
+      });
+
+      // Save only Access Token
+      localStorage.setItem("accessToken", res.data.accessToken);
+
+      // Redirect to dashboard
       navigate("/dashboard");
     } catch (err) {
-      alert(err.response?.data?.message || "Login failed");
+      console.error("Login error:", err);
+
+      if (err.response?.data?.message) {
+        setErrorMsg(err.response.data.message);
+      } else {
+        setErrorMsg("Login failed. Try again.");
+      }
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-base-bg">
-      <div className="w-full max-w-md bg-base-card border border-base-border rounded-2xl p-8 shadow-sm">
-        <h1 className="text-2xl font-bold mb-6 text-center text-base-text">
-          AI Resume Builder
-        </h1>
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div>
-            <label className="block text-sm mb-1 text-base-subt">Email</label>
-            <input
-              type="email"
-              className="w-full px-3 py-2 rounded-lg bg-base-bg border border-base-border focus:ring-2 focus:ring-primary-300"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+    <div className="flex justify-center items-center min-h-screen bg-gray-100 px-5">
+      <form
+        onSubmit={handleLogin}
+        className="space-y-4 w-full max-w-sm bg-white p-8 rounded-lg shadow-md"
+      >
+        <h1 className="text-2xl font-bold mb-4 text-center">Login</h1>
+
+        {errorMsg && (
+          <div className="bg-red-100 text-red-700 px-3 py-2 rounded">
+            {errorMsg}
           </div>
+        )}
 
-          <div>
-            <label className="block text-sm mb-1 text-base-subt">
-              Password
-            </label>
-            <input
-              type="password"
-              className="w-full px-3 py-2 rounded-lg bg-base-bg border border-base-border focus:ring-2 focus:ring-primary-300"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
+        <div>
+          <label className="block text-gray-700 mb-1 font-medium">Email</label>
+          <input
+            type="email"
+            className="border px-3 py-2 rounded w-full"
+            placeholder="example@gmail.com"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
 
-          <button
-            disabled={loading}
-            className="bg-purple-500 w-full py-2 rounded-lg bg-primary-500 hover:bg-purple-600 font-semibold text-white transition disabled:opacity-60"
-          >
-            {loading ? "Logging in..." : "Login"}
-          </button>
-        </form>
+        <div>
+          <label className="block text-gray-700 mb-1 font-medium">
+            Password
+          </label>
+          <input
+            type="password"
+            className="border px-3 py-2 rounded w-full"
+            placeholder="•••••••••"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
 
-        <p className="text-sm text-center mt-4 text-base-subt">
-          Don&apos;t have an account?{" "}
-          <Link to="/register" className="text-primary-500 hover:underline">
-            Register
-          </Link>
-        </p>
-      </div>
+        <button
+          type="submit" // 🔥 REQUIRED to trigger onSubmit properly
+          disabled={loading}
+          className="bg-purple-600 w-full py-2 rounded-lg text-white font-semibold hover:bg-purple-700 transition disabled:opacity-60"
+        >
+          {loading ? "Logging in..." : "Login"}
+        </button>
+      </form>
     </div>
   );
 }
