@@ -104,9 +104,7 @@ const Footer = () => {
           <p className="text-muted-foreground text-sm">
             © {new Date().getFullYear()} ResumeAI. All rights reserved.
           </p>
-          <p className="text-muted-foreground text-sm">
-            Made with ❤️ for job seekers everywhere
-          </p>
+          <p className="text-muted-foreground text-sm">Made by Nipuna Lakmal</p>
         </div>
       </div>
     </footer>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../services/api";
+import Button from "../components/ui/Button";
 
 import {
   TemplateMinimal,
@@ -38,6 +39,37 @@ export default function Editor() {
   // LOAD RESUME
   useEffect(() => {
     if (id === "new") {
+      // If JD Scanner passed data via URL
+      const params = new URLSearchParams(window.location.search);
+      const incoming = params.get("data");
+
+      if (incoming) {
+        try {
+          const json = JSON.parse(decodeURIComponent(incoming));
+          // pre-fill editor
+          setForm({
+            name: json.header?.name || "",
+            role: json.header?.role || "",
+            email: json.header?.email || "",
+            phone: json.header?.phone || "",
+            summary: json.summary || "",
+            skillsText: (json.skills || []).join(", "),
+          });
+
+          setExperiences(
+            json.experience?.map((exp) => ({
+              role: exp.role,
+              company: exp.company,
+              tech: (exp.tech || []).join(", "),
+              bullets: exp.bullets || [],
+              bulletsText: (exp.bullets || []).join("\n"),
+              notes: "",
+            })) || []
+          );
+        } catch (e) {
+          console.log("Failed to decode JD data");
+        }
+      }
       setResumeDoc({
         _id: null,
         template: "Minimal",
@@ -553,14 +585,14 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
             className="w-full px-3 py-2 rounded-lg bg-base-bg border border-base-border text-sm"
           />
 
-          <button
-            type="button"
+          <Button
+            size="sm"
             onClick={handleAISummary}
             disabled={summaryLoading}
-            className="text-xs px-3 py-1.5 rounded-lg bg-purple-500 text-white font-semibold hover:bg-purple-600 disabled:opacity-60"
+            className="text-xs px-3 py-1.5 rounded-lg text-white font-semibold disabled:opacity-60"
           >
             {summaryLoading ? "AI..." : "AI Improve Summary"}
-          </button>
+          </Button>
         </div>
 
         {/* EXPERIENCE & PROJECTS (unchanged UI) */}
@@ -748,13 +780,13 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
 
         {/* ACTION BUTTONS */}
         <div className="flex gap-2 pt-2">
-          <button
+          <Button
             onClick={handleSave} // ⭐ UPDATED – toast handled inside handleSave
             disabled={saving}
-            className="flex-1 py-2 rounded-lg bg-purple-500 text-white font-semibold text-sm hover:bg-purple-600 disabled:opacity-60"
+            className="flex-1 py-2 rounded-lg text-white font-semibold text-sm"
           >
             {saving ? "Saving..." : "Save"}
-          </button>
+          </Button>
 
           <button
             onClick={handleExportPdf}
@@ -779,7 +811,7 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
         <div
           className="
       fixed bottom-6 right-6 
-      bg-purple-600 text-white shadow-lg 
+      bg-primary text-white shadow-lg 
       px-5 py-3 rounded-xl text-sm font-medium
       animate-toast
     "
