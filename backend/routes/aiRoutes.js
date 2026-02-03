@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import express from "express";
 import Groq from "groq-sdk";
+import auth from "../middleware/auth.js";
 
 const router = express.Router();
 dotenv.config();
@@ -52,7 +53,7 @@ function extractJson(text) {
 // ───────────────────────────────────────────────
 
 // SUMMARY — AI Improve Summary
-router.post("/generate-summary", async (req, res) => {
+router.post("/generate-summary", auth, async (req, res) => {
   const { prompt } = req.body;
 
   if (!prompt) return res.status(400).json({ message: "prompt is required" });
@@ -79,16 +80,16 @@ Guidelines:
 });
 
 // SKILLS — AI Generate Skills
-router.post("/generate-skills", async (req, res) => {
-  const { keywords } = req.body;
+router.post("/generate-skills", auth, async (req, res) => {
+  const { keywords, role } = req.body;
 
   if (!keywords) return res.status(400).json({ message: "keywords required" });
 
   try {
     const text = await generateText(`
-Extract professional SKILLS ONLY from this text.
-
-Return ONLY comma-separated skills:
+Extract professional SKILLS releted to this field: ${keywords}.
+and for this role: ${role}.
+Return ONLY comma-separated skills, make sure they are relevant to useful for a ${role} resume, and need more than 10 and less than 15 skills:
 ${keywords}
     `);
 
@@ -104,7 +105,7 @@ ${keywords}
 });
 
 // EXPERIENCE — AI Auto Bullets
-router.post("/generate-experience", async (req, res) => {
+router.post("/generate-experience", auth, async (req, res) => {
   const { role, company, tech, notes } = req.body;
 
   try {
@@ -135,7 +136,7 @@ Rules:
 });
 
 // ATS SCORE — AI Resume vs Job Description
-router.post("/ats-check", async (req, res) => {
+router.post("/ats-check", auth, async (req, res) => {
   const { resumeText, jobDescription } = req.body;
 
   if (!resumeText || !jobDescription)
@@ -168,7 +169,7 @@ Return ONLY JSON:
 });
 
 // FULL RESUME GENERATOR — Build everything from keywords
-router.post("/generate-full", async (req, res) => {
+router.post("/generate-full", auth, async (req, res) => {
   const { keywords, targetRole } = req.body;
 
   if (!keywords) return res.status(400).json({ message: "keywords required" });

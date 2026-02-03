@@ -10,6 +10,8 @@ import Footer from "./components/Footer.jsx";
 import LinkedIn from "./pages/LinkedIn.jsx";
 import JobScanner from "./pages/JobScanner.jsx";
 import ATSAnalyzer from "./pages/ATSAnalyzer.jsx";
+import ATSEditor from "./pages/ATSEditor.jsx";
+import InterviewPrepPage from "./pages/InterviewPrepPage.jsx";
 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("accessToken");
@@ -57,6 +59,14 @@ export default function App() {
           }
         />
         <Route
+          path="/editor/ats/"
+          element={
+            <ProtectedRoute>
+              <ATSEditor />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/editor/:id"
           element={
             <ProtectedRoute>
@@ -93,6 +103,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <ATSAnalyzer />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/interview-guide"
+          element={
+            <ProtectedRoute>
+              <InterviewPrepPage />
             </ProtectedRoute>
           }
         />

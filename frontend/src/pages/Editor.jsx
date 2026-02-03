@@ -7,6 +7,12 @@ import {
   TemplateMinimal,
   TemplateModern,
   TemplateTwoColumn,
+  TemplateCorporate,
+  TemplateCreative,
+  TemplateElegant,
+  TemplateTechMatrix,
+  TemplateCompact,
+  TemplateProfessional,
 } from "../templates/Templates";
 
 import { AISkills, AIExperience, AIProjects } from "../components/AITools";
@@ -16,7 +22,7 @@ export default function Editor() {
   const navigate = useNavigate();
 
   const [resumeDoc, setResumeDoc] = useState(null);
-  const [template, setTemplate] = useState("minimal");
+  const [template, setTemplate] = useState("Minimal");
 
   const [form, setForm] = useState({
     name: "",
@@ -479,6 +485,12 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
   let PreviewComponent = TemplateMinimal;
   if (template === "Modern") PreviewComponent = TemplateModern;
   if (template === "Two-column") PreviewComponent = TemplateTwoColumn;
+  if (template === "Corporate") PreviewComponent = TemplateCorporate;
+  if (template === "Creative") PreviewComponent = TemplateCreative;
+  if (template === "Elegant") PreviewComponent = TemplateElegant;
+  if (template === "TechMatrix") PreviewComponent = TemplateTechMatrix;
+  if (template === "Compact") PreviewComponent = TemplateCompact;
+  if (template === "Professional") PreviewComponent = TemplateProfessional;
 
   return (
     <div className="min-h-screen flex bg-base-bg text-base-text">
@@ -501,6 +513,12 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
             <option value="Minimal">Minimal</option>
             <option value="Modern">Modern</option>
             <option value="Two-column">Two-column</option>
+            <option value="Corporate">Corporate</option>
+            <option value="Creative">Creative</option>
+            <option value="Elegant">Elegant</option>
+            <option value="TechMatrix">TechMatrix</option>
+            <option value="Compact">Compact</option>
+            <option value="Professional">Professional</option>
           </select>
         </div>
 
@@ -554,25 +572,6 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
           </div>
         </div>
 
-        {/* SKILLS */}
-        <div className="space-y-2">
-          <label className="text-xs uppercase tracking-wide text-base-subt">
-            Skills (comma separated)
-          </label>
-          <input
-            value={form.skillsText}
-            onChange={(e) => updateForm("skillsText", e.target.value)}
-            placeholder="React, Node.js, MongoDB..."
-            className="w-full px-3 py-2 rounded-lg bg-base-bg border border-base-border text-sm"
-          />
-
-          <AISkills
-            onGenerated={(skills) =>
-              updateForm("skillsText", skills.join(", "))
-            }
-          />
-        </div>
-
         {/* SUMMARY */}
         <div className="space-y-2">
           <label className="text-xs uppercase tracking-wide text-base-subt">
@@ -593,6 +592,25 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
           >
             {summaryLoading ? "AI..." : "AI Improve Summary"}
           </Button>
+        </div>
+
+        {/* SKILLS */}
+        <div className="space-y-2">
+          <label className="text-xs uppercase tracking-wide text-base-subt">
+            Skills (comma separated)
+          </label>
+          <input
+            value={form.skillsText}
+            onChange={(e) => updateForm("skillsText", e.target.value)}
+            placeholder="React, Node.js, MongoDB..."
+            className="w-full px-3 py-2 rounded-lg bg-base-bg border border-base-border text-sm"
+          />
+
+          <AISkills
+            onGenerated={(skills) =>
+              updateForm("skillsText", skills.join(", "))
+            }
+          />
         </div>
 
         {/* EXPERIENCE & PROJECTS (unchanged UI) */}

@@ -4,12 +4,75 @@ import path from "path";
 import Groq from "groq-sdk"; // adjust import to your sdk
 import crypto from "crypto";
 import auth from "../middleware/auth.js";
+import multer from "multer";
+import { extractTextHybrid } from "../utils/extractTextHybrid.js"; // you provided this. :contentReference[oaicite:5]{index=5}
+import ATSAnalysis from "../models/ATSAnalysis.js";
 
 const router = express.Router();
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-
+const upload = multer({ dest: "uploads/" });
 // helper for unique ids
 const id = () => crypto.randomUUID();
+
+// --- NEW: Extract resume file and convert to parsed resume JSON ---
+router.post(
+  "/extract-resume",
+  auth,
+  upload.single("file"),
+  async (req, res) => {
+    const file = req.file;
+    try {
+      if (!file) return res.status(400).json({ error: "No file uploaded" });
+
+      // extract text (hybrid PDF/text or image OCR)
+      const text = await extractTextHybrid(file.path, file.mimetype);
+
+      // ask AI to parse resume text into resume JSON (summary, skills, experience, education, bullets)
+      const parsePrompt = `
+You are a resume parsing assistant. Convert the following resume text into JSON with fields:
+{ 
+  "header": { "name": "...", "role": "...", "email":"", "phone": "" },
+  "summary": "...",
+  "skills": ["..."],
+  "experience": [ { "company":"", "role":"", "bullets":[ "..."] } ],
+  "education": [ "..." ],
+  "projects": [...]
+}
+Return valid JSON only.
+--- RESUME_TEXT ---
+${text}
+`;
+
+      const completion = await groq.chat.completions.create({
+        model: "llama-3.3-70b-versatile",
+        messages: [{ role: "user", content: parsePrompt }],
+        response_format: { type: "text" },
+        temperature: 0.0,
+        max_tokens: 1200,
+      });
+
+      let parsed = {};
+      try {
+        parsed = JSON.parse(completion.choices[0].message.content);
+      } catch (e) {
+        // If parsing fails, still return raw text
+        parsed = { rawText: text };
+      }
+
+      return res.json({ parsed, text });
+    } catch (err) {
+      console.error("extract-resume error:", err);
+      return res
+        .status(500)
+        .json({ error: "Failed to extract or parse resume" });
+    } finally {
+      // cleanup upload
+      try {
+        await fs.unlink(file.path).catch(() => {});
+      } catch {}
+    }
+  }
+);
 
 // --- Analyze route ---
 router.post("/analyze", auth, async (req, res) => {
@@ -66,22 +129,27 @@ Rules:
 
     const data = JSON.parse(completion.choices[0].message.content);
 
-    // attach analysisId if not provided
-    data.analysisId = data.analysisId || id();
+    data.analysisId = crypto.randomUUID();
     data.createdAt = data.createdAt || new Date().toISOString();
 
-    // store minimal history (append to file)
-    const historyFile = path.resolve("./ats_history.json");
     try {
-      const raw = await fs.readFile(historyFile, "utf8").catch(() => "[]");
-      const arr = JSON.parse(raw || "[]");
-      arr.unshift(data);
-      await fs.writeFile(
-        historyFile,
-        JSON.stringify(arr.slice(0, 200), null, 2)
-      );
+      await ATSAnalysis.create({
+        userId: req.user?.id || null,
+        sourceType: resume && resume._id ? "resume" : "upload",
+        sourceRef: resume && resume._id ? resume._id : null,
+        analysisId: data.analysisId,
+        atsScore: data.atsScore,
+        metrics: data.metrics,
+        summary: data.summary,
+        missingKeywords: data.missingKeywords,
+        formattingIssues: data.formattingIssues,
+        grammarSuggestions: data.grammarSuggestions,
+        suggestions: data.suggestions,
+        rawResponse: data,
+      });
     } catch (e) {
-      console.warn("History save failed:", e.message);
+      console.error("❌ ATSAnalysis DB save failed:", e);
+      return res.status(500).json({ error: "Failed to save ATS analysis" });
     }
 
     return res.json(data);
@@ -155,26 +223,34 @@ router.post("/apply", auth, async (req, res) => {
   }
 });
 
-// --- History endpoints ---
+// --- history reads from Mongo DB ---
 router.get("/history", auth, async (req, res) => {
   try {
-    const historyFile = path.resolve("./ats_history.json");
-    const raw = await fs.readFile(historyFile, "utf8").catch(() => "[]");
-    const arr = JSON.parse(raw || "[]");
-    return res.json(arr);
-  } catch {
+    const list = await ATSAnalysis.find({ userId: req.user?.id || null })
+      .sort({ createdAt: -1 })
+      .limit(200)
+      .lean();
+    return res.json(list);
+  } catch (e) {
+    console.error("History read failed:", e);
     return res.json([]);
   }
 });
 
+// --- manual save (if needed) ---
 router.post("/history", auth, async (req, res) => {
   try {
     const { analysis } = req.body;
-    const historyFile = path.resolve("./ats_history.json");
-    const raw = await fs.readFile(historyFile, "utf8").catch(() => "[]");
-    const arr = JSON.parse(raw || "[]");
-    arr.unshift(analysis);
-    await fs.writeFile(historyFile, JSON.stringify(arr.slice(0, 200), null, 2));
+    await ATSAnalysis.create({
+      userId: req.user?.id || null,
+      analysisId: analysis.analysisId || id(),
+      atsScore: analysis.atsScore,
+      metrics: analysis.metrics,
+      summary: analysis.summary,
+      missingKeywords: analysis.missingKeywords,
+      suggestions: analysis.suggestions,
+      rawResponse: analysis,
+    });
     return res.json({ ok: true });
   } catch (e) {
     return res.status(500).json({ error: e.message });

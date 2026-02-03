@@ -67,7 +67,7 @@ ${RESUME_SCHEMA}
     const resumeJson = JSON.parse(cleanJson);
 
     const newResume = await Resume.create({
-      userId: req.userId,
+      userId: req.user.id,
       title: `${resumeJson.header.name || "LinkedIn"} Resume`,
       template: "Modern",
       resumeJson: JSON.stringify(resumeJson),

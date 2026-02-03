@@ -8,9 +8,12 @@ import {
   LogOut,
   LayoutDashboard,
   FileText,
-  CreditCard,
+  SquareKanban,
   Menu,
   X,
+  MessageCircleQuestionMark,
+  FileScan,
+  FilePlusCorner,
 } from "lucide-react";
 
 const DashboardLayout = ({ children }) => {
@@ -23,9 +26,14 @@ const DashboardLayout = ({ children }) => {
 
   const sidebarLinks = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Linkdin Imports", href: "/linkedin-import", icon: FileText },
-    { name: "Job Scanner", href: "/jobscanner", icon: CreditCard },
-    { name: "ATS Analyzer", href: "/atsanalyzer", icon: Settings },
+    { name: "Linkdin Imports", href: "/linkedin-import", icon: FilePlusCorner },
+    { name: "Job Scanner", href: "/jobscanner", icon: FileScan },
+    { name: "ATS Analyzer", href: "/atsanalyzer", icon: SquareKanban },
+    {
+      name: "Interview Guide",
+      href: "/interview-guide",
+      icon: MessageCircleQuestionMark,
+    },
   ];
 
   useEffect(() => {
