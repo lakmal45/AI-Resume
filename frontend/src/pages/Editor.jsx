@@ -1,11 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../services/api";
+import Button from "../components/ui/Button";
 
 import {
   TemplateMinimal,
   TemplateModern,
   TemplateTwoColumn,
+  TemplateCorporate,
+  TemplateCreative,
+  TemplateElegant,
+  TemplateTechMatrix,
+  TemplateCompact,
+  TemplateProfessional,
 } from "../templates/Templates";
 
 import { AISkills, AIExperience, AIProjects } from "../components/AITools";
@@ -15,7 +22,7 @@ export default function Editor() {
   const navigate = useNavigate();
 
   const [resumeDoc, setResumeDoc] = useState(null);
-  const [template, setTemplate] = useState("minimal");
+  const [template, setTemplate] = useState("Minimal");
 
   const [form, setForm] = useState({
     name: "",
@@ -38,6 +45,37 @@ export default function Editor() {
   // LOAD RESUME
   useEffect(() => {
     if (id === "new") {
+      // If JD Scanner passed data via URL
+      const params = new URLSearchParams(window.location.search);
+      const incoming = params.get("data");
+
+      if (incoming) {
+        try {
+          const json = JSON.parse(decodeURIComponent(incoming));
+          // pre-fill editor
+          setForm({
+            name: json.header?.name || "",
+            role: json.header?.role || "",
+            email: json.header?.email || "",
+            phone: json.header?.phone || "",
+            summary: json.summary || "",
+            skillsText: (json.skills || []).join(", "),
+          });
+
+          setExperiences(
+            json.experience?.map((exp) => ({
+              role: exp.role,
+              company: exp.company,
+              tech: (exp.tech || []).join(", "),
+              bullets: exp.bullets || [],
+              bulletsText: (exp.bullets || []).join("\n"),
+              notes: "",
+            })) || []
+          );
+        } catch (e) {
+          console.log("Failed to decode JD data");
+        }
+      }
       setResumeDoc({
         _id: null,
         template: "Minimal",
@@ -447,6 +485,12 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
   let PreviewComponent = TemplateMinimal;
   if (template === "Modern") PreviewComponent = TemplateModern;
   if (template === "Two-column") PreviewComponent = TemplateTwoColumn;
+  if (template === "Corporate") PreviewComponent = TemplateCorporate;
+  if (template === "Creative") PreviewComponent = TemplateCreative;
+  if (template === "Elegant") PreviewComponent = TemplateElegant;
+  if (template === "TechMatrix") PreviewComponent = TemplateTechMatrix;
+  if (template === "Compact") PreviewComponent = TemplateCompact;
+  if (template === "Professional") PreviewComponent = TemplateProfessional;
 
   return (
     <div className="min-h-screen flex bg-base-bg text-base-text">
@@ -469,6 +513,12 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
             <option value="Minimal">Minimal</option>
             <option value="Modern">Modern</option>
             <option value="Two-column">Two-column</option>
+            <option value="Corporate">Corporate</option>
+            <option value="Creative">Creative</option>
+            <option value="Elegant">Elegant</option>
+            <option value="TechMatrix">TechMatrix</option>
+            <option value="Compact">Compact</option>
+            <option value="Professional">Professional</option>
           </select>
         </div>
 
@@ -522,6 +572,28 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
           </div>
         </div>
 
+        {/* SUMMARY */}
+        <div className="space-y-2">
+          <label className="text-xs uppercase tracking-wide text-base-subt">
+            Summary
+          </label>
+          <textarea
+            value={form.summary}
+            onChange={(e) => updateForm("summary", e.target.value)}
+            rows={4}
+            className="w-full px-3 py-2 rounded-lg bg-base-bg border border-base-border text-sm"
+          />
+
+          <Button
+            size="sm"
+            onClick={handleAISummary}
+            disabled={summaryLoading}
+            className="text-xs px-3 py-1.5 rounded-lg text-white font-semibold disabled:opacity-60"
+          >
+            {summaryLoading ? "AI..." : "AI Improve Summary"}
+          </Button>
+        </div>
+
         {/* SKILLS */}
         <div className="space-y-2">
           <label className="text-xs uppercase tracking-wide text-base-subt">
@@ -539,28 +611,6 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
               updateForm("skillsText", skills.join(", "))
             }
           />
-        </div>
-
-        {/* SUMMARY */}
-        <div className="space-y-2">
-          <label className="text-xs uppercase tracking-wide text-base-subt">
-            Summary
-          </label>
-          <textarea
-            value={form.summary}
-            onChange={(e) => updateForm("summary", e.target.value)}
-            rows={4}
-            className="w-full px-3 py-2 rounded-lg bg-base-bg border border-base-border text-sm"
-          />
-
-          <button
-            type="button"
-            onClick={handleAISummary}
-            disabled={summaryLoading}
-            className="text-xs px-3 py-1.5 rounded-lg bg-purple-500 text-white font-semibold hover:bg-purple-600 disabled:opacity-60"
-          >
-            {summaryLoading ? "AI..." : "AI Improve Summary"}
-          </button>
         </div>
 
         {/* EXPERIENCE & PROJECTS (unchanged UI) */}
@@ -748,13 +798,13 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
 
         {/* ACTION BUTTONS */}
         <div className="flex gap-2 pt-2">
-          <button
+          <Button
             onClick={handleSave} // ⭐ UPDATED – toast handled inside handleSave
             disabled={saving}
-            className="flex-1 py-2 rounded-lg bg-purple-500 text-white font-semibold text-sm hover:bg-purple-600 disabled:opacity-60"
+            className="flex-1 py-2 rounded-lg text-white font-semibold text-sm"
           >
             {saving ? "Saving..." : "Save"}
-          </button>
+          </Button>
 
           <button
             onClick={handleExportPdf}
@@ -779,7 +829,7 @@ Skills: ${form.skillsText || "React, JavaScript, Node.js"}
         <div
           className="
       fixed bottom-6 right-6 
-      bg-purple-600 text-white shadow-lg 
+      bg-primary text-white shadow-lg 
       px-5 py-3 rounded-xl text-sm font-medium
       animate-toast
     "
