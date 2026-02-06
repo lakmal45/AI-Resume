@@ -110,7 +110,8 @@ export default function ATSAnalyzer({ userResume, setUserResume }) {
       setSelectedResumeJson(null);
       return;
     }
-    ////////////////////////////////////////////
+
+    // Load selected resume JSON when resume ID changes
     const loadOne = async () => {
       try {
         const res = await api.get(`/api/resumes/${selectedResumeId}`);
@@ -276,7 +277,7 @@ export default function ATSAnalyzer({ userResume, setUserResume }) {
     if (!analysis) return alert("Run analysis first.");
 
     const sorted = [...analysis.suggestions].sort(
-      (a, b) => mapImpact(a.impact) - mapImpact(b.impact)
+      (a, b) => mapImpact(a.impact) - mapImpact(b.impact),
     );
 
     const html = `
@@ -291,8 +292,8 @@ export default function ATSAnalyzer({ userResume, setUserResume }) {
           mapImpact(s.impact) === 0
             ? "#d9534f"
             : mapImpact(s.impact) === 1
-            ? "#f0ad4e"
-            : "#5bc0de"
+              ? "#f0ad4e"
+              : "#5bc0de"
         };">
           <strong>${s.title}</strong> (${s.impact || ""})
           <p>${s.explanation}</p>
@@ -301,7 +302,7 @@ export default function ATSAnalyzer({ userResume, setUserResume }) {
               ? s.proposedChange
               : JSON.stringify(s.proposedChange, null, 2)
           }</pre>
-        </div>`
+        </div>`,
         )
         .join("")}
       </body></html>
@@ -311,7 +312,7 @@ export default function ATSAnalyzer({ userResume, setUserResume }) {
       const r = await api.post(
         "/api/pdf/export",
         { html },
-        { responseType: "blob" }
+        { responseType: "blob" },
       );
 
       const blob = new Blob([r.data], { type: "application/pdf" });

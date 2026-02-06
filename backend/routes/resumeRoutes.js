@@ -26,7 +26,7 @@ router.put("/:id", auth, async (req, res) => {
   const updated = await Resume.findOneAndUpdate(
     { _id: req.params.id, userId: req.user.id },
     { ...req.body, updatedAt: Date.now() },
-    { new: true }
+    { new: true },
   );
   res.json(updated);
 });
