@@ -13,13 +13,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import Button from "../components/ui/Button";
-
-// --- Static Data ---
-const mockResumes = [
-  { id: "1", name: "Software Engineer Resume" },
-  { id: "2", name: "Product Manager Resume" },
-  { id: "3", name: "Data Analyst Resume" },
-];
+import { api } from "../services/api";
 
 const interviewTips = [
   {
@@ -62,31 +56,32 @@ const practiceQuestions = [
 
 export default function InterviewGenerator({ userId }) {
   const [resumes, setResumes] = useState([]);
-  const [resumeId, setResumeId] = useState("");
   const [role, setRole] = useState("");
   const [result, setResult] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedResumeId, setSelectedResumeId] = useState("");
   const [selectedResumeJson, setSelectedResumeJson] = useState(null);
 
+  // Load all resumes
   useEffect(() => {
     const loadResumes = async () => {
       try {
-        const res = await api.get("/api/resumes");
-        setResumes(res.data || []);
+        const res = await api.get("/api/resumes/");
+        setResumes(res.data);
       } catch (err) {
-        console.error("Failed to load resumes");
+        console.error(err);
       }
     };
     loadResumes();
   }, []);
 
+  // Load selected resume JSON when resume ID changes
   useEffect(() => {
     if (!selectedResumeId) {
       setSelectedResumeJson(null);
       return;
     }
-    const loadResumes = async () => {
+    const loadOne = async () => {
       try {
         const res = await api.get(`/api/resumes/${selectedResumeId}`);
         const json = res.data.resumeJson ? JSON.parse(res.data.resumeJson) : {};
@@ -95,19 +90,21 @@ export default function InterviewGenerator({ userId }) {
         console.error("Failed to load resume");
       }
     };
-    loadResumes();
+    loadOne();
   }, [selectedResumeId]);
 
+  // Generate interview questions based on selected resume and role
   const generate = async () => {
-    if (!resumeId) return alert("Select a resume!");
+    if (!selectedResumeId) return alert("Select a resume!");
     setLoading(true);
 
     const token = localStorage.getItem("token");
+    console.log("TOKEN:", token);
     try {
       const res = await axios.post(
         "/api/interview/generate",
-        { userId, resumeId, role },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { userId, selectedResumeId, role },
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       setResult(res.data.saved.questions);
     } catch (err) {
@@ -148,7 +145,7 @@ export default function InterviewGenerator({ userId }) {
               {/* Standard HTML Select with Tailwind Styling */}
               <div className="relative w-full md:w-[400px]">
                 <select
-                  className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm"
                   value={selectedResumeId}
                   onChange={(e) => setSelectedResumeId(e.target.value)}
                 >

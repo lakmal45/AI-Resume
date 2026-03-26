@@ -10,15 +10,17 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 // -------------------------------
 // GET: Fetch user resumes
 // -------------------------------
-router.get("/resumes/:userId", auth, async (req, res) => {
-  const resumes = await Resume.find({ userId: req.params.userId });
-  res.json(resumes);
+
+router.get("/resume/:resumeId", auth, async (req, res) => {
+  const resume = await Resume.findById(req.params.resumeId);
+  if (!resume) return res.status(404).json({ message: "Resume not found" });
+  res.json(resume);
 });
 
 // -------------------------------
 // POST: Generate + Save Questions
 // -------------------------------
-router.post("/generate", async (req, res) => {
+router.post("/generate", auth, async (req, res) => {
   const { userId, resumeId, role } = req.body;
 
   const resume = await Resume.findById(resumeId);
