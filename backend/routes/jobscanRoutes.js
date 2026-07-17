@@ -1,68 +1,51 @@
 import express from "express";
 import Groq from "groq-sdk";
 import auth from "../middleware/auth.js";
+import { asyncHandler } from "../middleware/asyncHandler.js";
+import { validate } from "../middleware/validate.js";
+import { jobScanAnalyzeSchema } from "../validators/schemas.js";
 import multer from "multer";
-import Tesseract from "tesseract.js";
-import { deleteFileIfExists, deleteFolderContents } from "../utils/cleanup.js"; // ← from your file
-
+import { deleteFileIfExists, deleteFolderContents } from "../utils/cleanup.js";
 import { extractTextHybrid } from "../utils/extractTextHybrid.js";
 
 const router = express.Router();
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-//const upload = multer({ dest: "uploads/jd/" });
-const upload = multer({ dest: "uploads/" });
-
-// FILE UPLOAD & TEXT EXTRACTION
-/*router.post("/extract-file", auth, upload.single("file"), async (req, res) => {
-  try {
-    const file = req.file;
-
-    if (!file) return res.status(400).json({ error: "No file uploaded" });
-
-    let text = "";
-
-    // PDF
-    if (file.mimetype === "application/pdf") {
-      const data = await pdfParse(file);
-      text = data.text;
-    }
-
-    // Image → OCR
-    else if (file.mimetype.startsWith("image/")) {
-      const result = await Tesseract.recognize(file.path, "eng");
-      text = result.data.text;
-    }
-
-    return res.json({ text });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to process file" });
-  }
-});*/
-
-// FILE UPLOAD & TEXT EXTRACTION
-router.post("/extract-file", auth, upload.single("file"), async (req, res) => {
-  const file = req.file;
-
-  try {
-    if (!file) return res.status(400).json({ error: "No file uploaded" });
-
-    const text = await extractTextHybrid(file.path, file.mimetype);
-
-    return res.json({ text });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to process file" });
-  } finally {
-    deleteFileIfExists(file.path);
-    deleteFolderContents("uploads");
-  }
+const upload = multer({
+  dest: "uploads/",
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB max
 });
 
+// FILE UPLOAD & TEXT EXTRACTION
+router.post(
+  "/extract-file",
+  auth,
+  upload.single("file"),
+  asyncHandler(async (req, res) => {
+    const file = req.file;
+
+    try {
+      if (!file) return res.status(400).json({ error: "No file uploaded" });
+
+      const text = await extractTextHybrid(file.path, file.mimetype);
+
+      return res.json({ text });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to process file" });
+    } finally {
+      if (file?.path) deleteFileIfExists(file.path);
+      deleteFolderContents("uploads");
+    }
+  })
+);
+
 // JOB SCAN ANALYSIS
-router.post("/analyze", auth, async (req, res) => {
-  try {
+router.post(
+  "/analyze",
+  auth,
+  validate(jobScanAnalyzeSchema),
+  asyncHandler(async (req, res) => {
     const { jdText, selectedResumeJson } = req.body;
 
     const resumeData = selectedResumeJson ? selectedResumeJson : {};
@@ -107,13 +90,15 @@ Rules:
       temperature: 0.2,
     });
 
-    const data = JSON.parse(completion.choices[0].message.content);
+    let data;
+    try {
+      data = JSON.parse(completion.choices[0].message.content);
+    } catch (e) {
+      return res.status(502).json({ error: "AI returned invalid JSON. Please try again." });
+    }
 
     return res.json(data);
-  } catch (error) {
-    console.error("JD Scan Error:", error);
-    return res.status(500).json({ error: "Failed to analyze job description" });
-  }
-});
+  })
+);
 
 export default router;

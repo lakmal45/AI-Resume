@@ -37,6 +37,11 @@ const Login = () => {
       // Save Access Token (Matches your Navbar logic)
       localStorage.setItem("accessToken", res.data.accessToken);
 
+      // Save user info for Dashboard greeting
+      if (res.data.user) {
+        localStorage.setItem("user", JSON.stringify(res.data.user));
+      }
+
       // Redirect
       navigate("/dashboard");
     } catch (err) {

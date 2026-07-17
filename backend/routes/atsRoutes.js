@@ -1,16 +1,22 @@
 import express from "express";
 import fs from "fs/promises";
 import path from "path";
-import Groq from "groq-sdk"; // adjust import to your sdk
+import Groq from "groq-sdk";
 import crypto from "crypto";
 import auth from "../middleware/auth.js";
+import { asyncHandler } from "../middleware/asyncHandler.js";
+import { validate } from "../middleware/validate.js";
+import { atsAnalyzeSchema } from "../validators/schemas.js";
 import multer from "multer";
-import { extractTextHybrid } from "../utils/extractTextHybrid.js"; // you provided this. :contentReference[oaicite:5]{index=5}
+import { extractTextHybrid } from "../utils/extractTextHybrid.js";
 import ATSAnalysis from "../models/ATSAnalysis.js";
 
 const router = express.Router();
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-const upload = multer({ dest: "uploads/" });
+const upload = multer({
+  dest: "uploads/",
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB max
+});
 // helper for unique ids
 const id = () => crypto.randomUUID();
 
@@ -19,7 +25,7 @@ router.post(
   "/extract-resume",
   auth,
   upload.single("file"),
-  async (req, res) => {
+  asyncHandler(async (req, res) => {
     const file = req.file;
     try {
       if (!file) return res.status(400).json({ error: "No file uploaded" });
@@ -67,16 +73,23 @@ ${text}
         .json({ error: "Failed to extract or parse resume" });
     } finally {
       // cleanup upload
-      try {
-        await fs.unlink(file.path).catch(() => {});
-      } catch {}
+      if (file && file.path) {
+        try {
+          await fs.unlink(file.path);
+        } catch (err) {
+          console.error("Cleanup failed for file:", file.path, err);
+        }
+      }
     }
-  }
+  })
 );
 
 // --- Analyze route ---
-router.post("/analyze", auth, async (req, res) => {
-  try {
+router.post(
+  "/analyze",
+  auth,
+  validate(atsAnalyzeSchema),
+  asyncHandler(async (req, res) => {
     const { resume, jobDescription = "" } = req.body;
 
     const resumeData = jobDescription ? jobDescription : {};
@@ -127,7 +140,12 @@ Rules:
       max_tokens: 1500,
     });
 
-    const data = JSON.parse(completion.choices[0].message.content);
+    let data;
+    try {
+      data = JSON.parse(completion.choices[0].message.content);
+    } catch (e) {
+      return res.status(502).json({ error: "AI returned invalid JSON. Please try again." });
+    }
 
     data.analysisId = crypto.randomUUID();
     data.createdAt = data.createdAt || new Date().toISOString();
@@ -153,16 +171,20 @@ Rules:
     }
 
     return res.json(data);
-  } catch (error) {
-    console.error("ATS analyze error:", error);
-    return res.status(500).json({ error: "ATS analysis failed" });
-  }
-});
+  })
+);
 
 // --- Apply suggestions route ---
-router.post("/apply", auth, async (req, res) => {
-  try {
+router.post(
+  "/apply",
+  auth,
+  asyncHandler(async (req, res) => {
     const { resume, suggestions, analysisId } = req.body;
+
+    if (!resume || !suggestions) {
+      return res.status(400).json({ error: "resume and suggestions are required" });
+    }
+
     // clone resume
     const updated = JSON.parse(JSON.stringify(resume));
 
@@ -217,30 +239,33 @@ router.post("/apply", auth, async (req, res) => {
     });
 
     return res.json({ updatedResume: updated });
-  } catch (err) {
-    console.error("Apply error:", err);
-    return res.status(500).json({ error: "Failed to apply suggestions" });
-  }
-});
+  })
+);
 
 // --- history reads from Mongo DB ---
-router.get("/history", auth, async (req, res) => {
-  try {
+router.get(
+  "/history",
+  auth,
+  asyncHandler(async (req, res) => {
     const list = await ATSAnalysis.find({ userId: req.user?.id || null })
       .sort({ createdAt: -1 })
       .limit(200)
       .lean();
     return res.json(list);
-  } catch (e) {
-    console.error("History read failed:", e);
-    return res.json([]);
-  }
-});
+  })
+);
 
 // --- manual save (if needed) ---
-router.post("/history", auth, async (req, res) => {
-  try {
+router.post(
+  "/history",
+  auth,
+  asyncHandler(async (req, res) => {
     const { analysis } = req.body;
+
+    if (!analysis) {
+      return res.status(400).json({ error: "analysis object is required" });
+    }
+
     await ATSAnalysis.create({
       userId: req.user?.id || null,
       analysisId: analysis.analysisId || id(),
@@ -252,9 +277,7 @@ router.post("/history", auth, async (req, res) => {
       rawResponse: analysis,
     });
     return res.json({ ok: true });
-  } catch (e) {
-    return res.status(500).json({ error: e.message });
-  }
-});
+  })
+);
 
 export default router;

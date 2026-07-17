@@ -3,9 +3,10 @@ import { Sparkles, ArrowRight, Play, CheckCircle2 } from "lucide-react";
 import Button from "../ui/Button";
 import heroBg from "../../assets/hero-bg.png";
 
+const typingTexts = ["Stand Out", "Get Hired", "Land Your Dream Job"];
+
 const HeroSection = () => {
   const [isVisible, setIsVisible] = useState(false);
-  const typingTexts = ["Stand Out", "Get Hired", "Land Your Dream Job"];
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
   const [displayText, setDisplayText] = useState("");
   const [isTyping, setIsTyping] = useState(true);

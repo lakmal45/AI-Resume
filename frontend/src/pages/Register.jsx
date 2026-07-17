@@ -46,6 +46,11 @@ const Register = () => {
       const token = res.data.accessToken || res.data.token;
       localStorage.setItem("accessToken", token);
 
+      // Save user info for Dashboard greeting
+      if (res.data.user) {
+        localStorage.setItem("user", JSON.stringify(res.data.user));
+      }
+
       navigate("/dashboard");
     } catch (err) {
       setErrorMsg(err.response?.data?.message || "Registration failed");

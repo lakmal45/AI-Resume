@@ -2,6 +2,8 @@ import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import { validate } from "../middleware/validate.js";
+import { registerSchema, loginSchema } from "../validators/schemas.js";
 
 const router = express.Router();
 
@@ -24,9 +26,9 @@ const cookieOptions = {
 };
 
 // -----------------------------------------------------------------------------
-// REGISTER
+// REGISTER — validated with Zod (name, email, password complexity)
 // -----------------------------------------------------------------------------
-router.post("/register", async (req, res) => {
+router.post("/register", validate(registerSchema), async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
@@ -53,9 +55,9 @@ router.post("/register", async (req, res) => {
 });
 
 // -----------------------------------------------------------------------------
-// LOGIN
+// LOGIN — validated with Zod (email, password)
 // -----------------------------------------------------------------------------
-router.post("/login", async (req, res) => {
+router.post("/login", validate(loginSchema), async (req, res) => {
   try {
     const { email, password } = req.body;
 

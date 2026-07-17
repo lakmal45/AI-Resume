@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: "http://localhost:5000", // change when deploying
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000",
   withCredentials: true,
 });
 
@@ -14,7 +14,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-export async function uploadLinkedInPdf(file, userId) {
+export async function uploadLinkedInPdf(file) {
   const form = new FormData();
   form.append("pdf", file);
 
@@ -36,8 +36,9 @@ api.interceptors.response.use(
       original._retry = true;
 
       try {
+        const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
         const refresh = await axios.get(
-          "http://localhost:5000/auth/refresh-token",
+          `${API_URL}/auth/refresh-token`,
           { withCredentials: true }
         );
 
@@ -50,7 +51,7 @@ api.interceptors.response.use(
         original.headers.Authorization = `Bearer ${newAccessToken}`;
 
         return api(original);
-      } catch (err) {
+      } catch {
         console.log("Session expired, redirecting to login");
         localStorage.removeItem("accessToken");
         window.location.href = "/login";

@@ -1,4 +1,5 @@
 import React from "react";
+import { Slot } from "@radix-ui/react-slot";
 import { cn } from "../home/utils/cn";
 
 const Button = React.forwardRef(
@@ -12,6 +13,7 @@ const Button = React.forwardRef(
     },
     ref
   ) => {
+    const Comp = asChild ? Slot : "button";
     const baseStyles =
       "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50";
 
@@ -38,7 +40,7 @@ const Button = React.forwardRef(
     };
 
     return (
-      <button
+      <Comp
         className={cn(baseStyles, variants[variant], sizes[size], className)}
         ref={ref}
         {...props}

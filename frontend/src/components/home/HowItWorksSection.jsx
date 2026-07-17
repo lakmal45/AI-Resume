@@ -1,37 +1,37 @@
 import React, { useState, useEffect, useRef } from "react";
 import { CheckCircle, Upload, Wand2, FileDown } from "lucide-react";
 
+const steps = [
+  {
+    number: "01",
+    icon: Upload,
+    title: "Import Your Data",
+    description:
+      "Upload your existing resume or LinkedIn profile, or start from scratch with our guided form.",
+    color: "from-blue-500 to-cyan-500",
+  },
+  {
+    number: "02",
+    icon: Wand2,
+    title: "AI Enhancement",
+    description:
+      "Our AI analyzes your experience and suggests powerful improvements to make you stand out.",
+    color: "from-purple-500 to-pink-500",
+  },
+  {
+    number: "03",
+    icon: FileDown,
+    title: "Download & Apply",
+    description:
+      "Export your polished resume in any format and start applying to your dream jobs today.",
+    color: "from-green-500 to-emerald-500",
+  },
+];
+
 const HowItWorksSection = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const sectionRef = useRef(null);
-
-  const steps = [
-    {
-      number: "01",
-      icon: Upload,
-      title: "Import Your Data",
-      description:
-        "Upload your existing resume or LinkedIn profile, or start from scratch with our guided form.",
-      color: "from-blue-500 to-cyan-500",
-    },
-    {
-      number: "02",
-      icon: Wand2,
-      title: "AI Enhancement",
-      description:
-        "Our AI analyzes your experience and suggests powerful improvements to make you stand out.",
-      color: "from-purple-500 to-pink-500",
-    },
-    {
-      number: "03",
-      icon: FileDown,
-      title: "Download & Apply",
-      description:
-        "Export your polished resume in any format and start applying to your dream jobs today.",
-      color: "from-green-500 to-emerald-500",
-    },
-  ];
 
   useEffect(() => {
     const observer = new IntersectionObserver(

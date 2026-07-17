@@ -203,7 +203,7 @@ const TestimonialsSection = () => {
             { value: "50+", label: "Templates" },
             { value: "4.9", label: "Average Rating" },
             { value: "85%", label: "Interview Rate" },
-          ].map((stat, index) => (
+          ].map((stat) => (
             <div key={stat.label} className="text-center">
               <p className="text-3xl md:text-4xl font-bold text-primary mb-2">
                 {stat.value}

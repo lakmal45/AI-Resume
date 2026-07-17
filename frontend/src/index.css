@@ -4,6 +4,20 @@
 
 @layer base {
   :root {
+    /* Brand Colors - Light Mode (used in custom UI) */
+    --c-primary: #0077b5;
+    --c-primary-dk: #0a66c2;
+    --c-primary-dkr: #004182;
+    --c-primary-lt: #dbeafe;
+    --c-primary-bdr: #bae6fd;
+    --c-primary-txt: #0369a1;
+    --c-bg: #f0f9ff;
+    --c-card: #ffffff;
+    --c-border: #e0f2fe;
+    --c-muted: #7dd3fc;
+    --c-muted-txt: #64748b;
+    --c-dark: #0f172a;
+
     /* Pure White Background */
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
@@ -45,6 +59,20 @@
   }
 
   .dark {
+    /* Brand Colors - Dark Mode */
+    --c-primary: #0a66c2;
+    --c-primary-dk: #0077b5;
+    --c-primary-dkr: #0284c7;
+    --c-primary-lt: #1e293b;
+    --c-primary-bdr: #334155;
+    --c-primary-txt: #38bdf8;
+    --c-bg: #020617;
+    --c-card: #0f172a;
+    --c-border: #1e293b;
+    --c-muted: #1e293b;
+    --c-muted-txt: #94a3b8;
+    --c-dark: #f8fafc;
+
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
 
@@ -81,6 +109,7 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
   }
 }
 

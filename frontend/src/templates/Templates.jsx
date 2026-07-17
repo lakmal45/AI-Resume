@@ -1,10 +1,36 @@
 import React from "react";
 
+function CustomSectionsRenderer({ sections, titleClass, itemTitleClass, descClass }) {
+  if (!sections || sections.length === 0) return null;
+  
+  return (
+    <>
+      {sections.map((sec, i) => (
+        <section key={i} className="mb-4">
+          <h2 className={titleClass || "text-sm font-semibold tracking-wide text-gray-700 uppercase"}>
+            {sec.title}
+          </h2>
+          {sec.items && sec.items.map((item, j) => (
+            <div key={j} className="mt-2">
+              <div className="flex justify-between items-baseline">
+                <p className={itemTitleClass || "font-semibold text-sm break-words"}>{item.name}</p>
+                {item.date && <p className="text-xs text-gray-500 whitespace-nowrap ml-2">{item.date}</p>}
+              </div>
+              {item.desc && <p className={descClass || "text-sm text-gray-700 break-words"}>{item.desc}</p>}
+            </div>
+          ))}
+        </section>
+      ))}
+    </>
+  );
+}
+
 // A two-column layout template
 export function TemplateMinimal({ data }) {
   const header = data.header || {};
   const skills = data.skills || [];
   const experience = data.experience || [];
+  const education = data.education || [];
   const projects = data.projects || [];
 
   return (
@@ -65,9 +91,16 @@ export function TemplateMinimal({ data }) {
           </h2>
           {experience.map((exp, i) => (
             <div key={i} className="mt-2">
-              <p className="font-semibold text-sm break-words">
-                {exp.role} — {exp.company}
-              </p>
+              <div className="flex justify-between items-baseline">
+                <p className="font-semibold text-sm break-words">
+                  {exp.role} — {exp.company}
+                </p>
+                {(exp.startDate || exp.endDate) && (
+                  <p className="text-xs text-gray-500 whitespace-nowrap ml-2">
+                    {exp.startDate} {exp.startDate && exp.endDate && "–"} {exp.endDate}
+                  </p>
+                )}
+              </div>
               <ul className="list-disc ml-5 text-sm text-gray-700">
                 {(exp.bullets || []).map((b, j) => (
                   <li key={j} className="break-words">
@@ -76,6 +109,26 @@ export function TemplateMinimal({ data }) {
                   </li>
                 ))}
               </ul>
+            </div>
+          ))}
+        </section>
+      )}
+
+      {education.length > 0 && (
+        <section className="mb-4">
+          <h2 className="text-sm font-semibold tracking-wide text-gray-700 uppercase">
+            Education
+          </h2>
+          {education.map((edu, i) => (
+            <div key={i} className="mt-2">
+              <div className="flex justify-between items-baseline">
+                <p className="font-semibold text-sm break-words">{edu.degree}</p>
+                <p className="text-xs text-gray-500 whitespace-nowrap ml-2">{edu.year}</p>
+              </div>
+              <div className="flex justify-between items-baseline">
+                <p className="text-sm text-gray-700 break-words">{edu.school}</p>
+                {edu.gpa && <p className="text-xs text-gray-500 whitespace-nowrap ml-2">GPA: {edu.gpa}</p>}
+              </div>
             </div>
           ))}
         </section>
@@ -99,6 +152,10 @@ export function TemplateMinimal({ data }) {
           ))}
         </section>
       )}
+
+      <CustomSectionsRenderer 
+        sections={data.customSections} 
+      />
     </div>
   );
 }
@@ -108,6 +165,7 @@ export function TemplateModern({ data }) {
   const header = data.header || {};
   const skills = data.skills || [];
   const experience = data.experience || [];
+  const education = data.education || [];
   const projects = data.projects || [];
 
   return (
@@ -161,9 +219,16 @@ export function TemplateModern({ data }) {
           </h2>
           {experience.map((exp, i) => (
             <div key={i} className="mt-2">
-              <p className="font-semibold text-sm break-words">
-                {exp.role} — {exp.company}
-              </p>
+              <div className="flex justify-between items-baseline">
+                <p className="font-semibold text-sm break-words">
+                  {exp.role} — {exp.company}
+                </p>
+                {(exp.startDate || exp.endDate) && (
+                  <p className="text-xs text-gray-500 whitespace-nowrap ml-2">
+                    {exp.startDate} {exp.startDate && exp.endDate && "–"} {exp.endDate}
+                  </p>
+                )}
+              </div>
               <ul className="list-disc ml-5 text-sm text-gray-800">
                 {(exp.bullets || []).map((b, j) => (
                   <li key={j} className="break-words">
@@ -171,6 +236,26 @@ export function TemplateModern({ data }) {
                   </li>
                 ))}
               </ul>
+            </div>
+          ))}
+        </section>
+      )}
+
+      {education.length > 0 && (
+        <section className="mb-4">
+          <h2 className="text-sm font-semibold text-primary-500 uppercase tracking-wide">
+            Education
+          </h2>
+          {education.map((edu, i) => (
+            <div key={i} className="mt-2">
+              <div className="flex justify-between items-baseline">
+                <p className="font-semibold text-sm break-words">{edu.degree}</p>
+                <p className="text-xs text-gray-500 whitespace-nowrap ml-2">{edu.year}</p>
+              </div>
+              <div className="flex justify-between items-baseline">
+                <p className="text-sm text-gray-700 break-words">{edu.school}</p>
+                {edu.gpa && <p className="text-xs text-gray-500 whitespace-nowrap ml-2">GPA: {edu.gpa}</p>}
+              </div>
             </div>
           ))}
         </section>
@@ -194,6 +279,11 @@ export function TemplateModern({ data }) {
           ))}
         </section>
       )}
+
+      <CustomSectionsRenderer 
+        sections={data.customSections} 
+        titleClass="text-sm font-semibold text-primary-500 uppercase tracking-wide" 
+      />
     </div>
   );
 }
@@ -203,6 +293,7 @@ export function TemplateTwoColumn({ data }) {
   const header = data.header || {};
   const skills = data.skills || [];
   const experience = data.experience || [];
+  const education = data.education || [];
   const projects = data.projects || [];
 
   return (
@@ -252,9 +343,16 @@ export function TemplateTwoColumn({ data }) {
             </h2>
             {experience.map((exp, i) => (
               <div key={i} className="mt-2">
-                <p className="font-semibold text-sm break-words">
-                  {exp.role} — {exp.company}
-                </p>
+                <div className="flex justify-between items-baseline">
+                  <p className="font-semibold text-sm break-words">
+                    {exp.role} — {exp.company}
+                  </p>
+                  {(exp.startDate || exp.endDate) && (
+                    <p className="text-xs text-gray-500 whitespace-nowrap ml-2">
+                      {exp.startDate} {exp.startDate && exp.endDate && "–"} {exp.endDate}
+                    </p>
+                  )}
+                </div>
                 <ul className="list-disc ml-5 text-sm text-gray-800">
                   {(exp.bullets || []).map((b, j) => (
                     <li key={j} className="break-words">
@@ -262,6 +360,26 @@ export function TemplateTwoColumn({ data }) {
                     </li>
                   ))}
                 </ul>
+              </div>
+            ))}
+          </section>
+        )}
+
+        {education.length > 0 && (
+          <section className="mb-4">
+            <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+              Education
+            </h2>
+            {education.map((edu, i) => (
+              <div key={i} className="mt-2">
+                <div className="flex justify-between items-baseline">
+                  <p className="font-semibold text-sm break-words">{edu.degree}</p>
+                  <p className="text-xs text-gray-500 whitespace-nowrap ml-2">{edu.year}</p>
+                </div>
+                <div className="flex justify-between items-baseline">
+                  <p className="text-sm text-gray-700 break-words">{edu.school}</p>
+                  {edu.gpa && <p className="text-xs text-gray-500 whitespace-nowrap ml-2">GPA: {edu.gpa}</p>}
+                </div>
               </div>
             ))}
           </section>
@@ -285,6 +403,11 @@ export function TemplateTwoColumn({ data }) {
             ))}
           </section>
         )}
+
+        <CustomSectionsRenderer 
+          sections={data.customSections} 
+          titleClass="text-sm font-semibold text-gray-700 uppercase tracking-wide" 
+        />
       </div>
     </div>
   );
@@ -292,7 +415,7 @@ export function TemplateTwoColumn({ data }) {
 
 // A clean, professional-style template
 export function TemplateCorporate({ data }) {
-  const { header = {}, skills = [], experience = [], projects = [] } = data;
+  const { header = {}, skills = [], experience = [], education = [], projects = [] } = data;
 
   return (
     <div className="w-full h-full p-10 text-gray-900 font-sans">
@@ -343,6 +466,24 @@ export function TemplateCorporate({ data }) {
         ))}
       </section>
 
+      {education.length > 0 && (
+        <section className="mb-6">
+          <h2 className="text-sm font-semibold uppercase">Education</h2>
+          {education.map((edu, i) => (
+            <div key={i} className="mt-3">
+              <div className="flex justify-between items-baseline">
+                <p className="font-semibold text-sm break-words">{edu.degree}</p>
+                <p className="text-xs text-gray-500 whitespace-nowrap ml-2">{edu.year}</p>
+              </div>
+              <div className="flex justify-between items-baseline">
+                <p className="text-sm text-gray-700 break-words">{edu.school}</p>
+                {edu.gpa && <p className="text-xs text-gray-500 whitespace-nowrap ml-2">GPA: {edu.gpa}</p>}
+              </div>
+            </div>
+          ))}
+        </section>
+      )}
+
       <section>
         <h2 className="text-sm font-semibold uppercase">Projects</h2>
         {projects.map((p, i) => (
@@ -353,13 +494,18 @@ export function TemplateCorporate({ data }) {
           </div>
         ))}
       </section>
+
+      <CustomSectionsRenderer 
+        sections={data.customSections} 
+        titleClass="text-sm font-semibold uppercase" 
+      />
     </div>
   );
 }
 
 // A technical, detailed-style template
 export function TemplateTechMatrix({ data }) {
-  const { header = {}, skills = [], experience = [], projects = [] } = data;
+  const { header = {}, skills = [], experience = [], education = [], projects = [] } = data;
   return (
     <div className="w-full h-full p-8 font-sans">
       <div className="grid grid-cols-2 gap-4 items-center border-b pb-4">
@@ -409,6 +555,24 @@ export function TemplateTechMatrix({ data }) {
         ))}
       </section>
 
+      {education.length > 0 && (
+        <section className="mt-6">
+          <h2 className="font-semibold uppercase text-xs">Education</h2>
+          {education.map((edu, i) => (
+            <div key={i} className="mt-3">
+              <div className="flex justify-between items-baseline">
+                <p className="font-semibold text-sm break-words">{edu.degree}</p>
+                <p className="text-xs text-gray-500 whitespace-nowrap ml-2">{edu.year}</p>
+              </div>
+              <div className="flex justify-between items-baseline">
+                <p className="text-sm text-gray-700 break-words">{edu.school}</p>
+                {edu.gpa && <p className="text-xs text-gray-500 whitespace-nowrap ml-2">GPA: {edu.gpa}</p>}
+              </div>
+            </div>
+          ))}
+        </section>
+      )}
+
       <section className="mt-6">
         <h2 className="font-semibold uppercase text-xs">Projects</h2>
         {projects.map((p, i) => (
@@ -418,13 +582,18 @@ export function TemplateTechMatrix({ data }) {
           </div>
         ))}
       </section>
+
+      <CustomSectionsRenderer 
+        sections={data.customSections} 
+        titleClass="font-semibold uppercase text-xs mt-6" 
+      />
     </div>
   );
 }
 
 // A compact, information-dense template
 export function TemplateCompact({ data }) {
-  const { header = {}, skills = [], experience = [], projects = [] } = data;
+  const { header = {}, skills = [], experience = [], education = [], projects = [] } = data;
 
   return (
     <div className="w-full h-full p-6 text-[13px] leading-tight">
@@ -442,9 +611,16 @@ export function TemplateCompact({ data }) {
       <h2 className="mt-4 font-semibold text-sm uppercase">Experience</h2>
       {experience.map((e, i) => (
         <div key={i} className="mt-2">
-          <p className="font-semibold">
-            {e.role} — {e.company}
-          </p>
+          <div className="flex justify-between items-baseline">
+            <p className="font-semibold">
+              {e.role} — {e.company}
+            </p>
+            {(e.startDate || e.endDate) && (
+              <p className="text-xs text-gray-500 whitespace-nowrap ml-2">
+                {e.startDate} {e.startDate && e.endDate && "–"} {e.endDate}
+              </p>
+            )}
+          </div>
           <ul className="list-disc ml-5">
             {e.bullets?.map((b, j) => (
               <li key={j}>{b}</li>
@@ -453,6 +629,24 @@ export function TemplateCompact({ data }) {
         </div>
       ))}
 
+      {education.length > 0 && (
+        <>
+          <h2 className="mt-4 font-semibold text-sm uppercase">Education</h2>
+          {education.map((edu, i) => (
+            <div key={i} className="mt-2">
+              <div className="flex justify-between items-baseline">
+                <p className="font-semibold text-sm break-words">{edu.degree}</p>
+                <p className="text-xs text-gray-500 whitespace-nowrap ml-2">{edu.year}</p>
+              </div>
+              <div className="flex justify-between items-baseline">
+                <p className="text-sm text-gray-700 break-words">{edu.school}</p>
+                {edu.gpa && <p className="text-xs text-gray-500 whitespace-nowrap ml-2">GPA: {edu.gpa}</p>}
+              </div>
+            </div>
+          ))}
+        </>
+      )}
+
       <h2 className="mt-4 font-semibold text-sm uppercase">Projects</h2>
       {projects.map((p, i) => (
         <div key={i} className="mt-2">
@@ -460,6 +654,13 @@ export function TemplateCompact({ data }) {
           <p>{p.desc}</p>
         </div>
       ))}
+
+      <CustomSectionsRenderer 
+        sections={data.customSections} 
+        titleClass="mt-4 font-semibold text-sm uppercase"
+        itemTitleClass="font-semibold"
+        descClass=""
+      />
     </div>
   );
 }
@@ -469,6 +670,7 @@ export function TemplateProfessional({ data }) {
   const header = data.header || {};
   const skills = data.skills || [];
   const experience = data.experience || [];
+  const education = data.education || [];
   const projects = data.projects || [];
 
   return (
@@ -528,9 +730,16 @@ export function TemplateProfessional({ data }) {
                   <h3 className="font-bold text-md text-gray-900 break-words">
                     {exp.role}
                   </h3>
-                  <span className="text-sm text-gray-500 font-medium break-words">
-                    {exp.company}
-                  </span>
+                  <div className="text-right">
+                    <span className="text-sm text-gray-500 font-medium break-words">
+                      {exp.company}
+                    </span>
+                    {(exp.startDate || exp.endDate) && (
+                      <span className="text-xs text-gray-400 ml-2 block sm:inline-block">
+                        {exp.startDate} {exp.startDate && exp.endDate && "–"} {exp.endDate}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <ul className="list-disc ml-5 mt-2 text-sm text-gray-600">
                   {(exp.bullets || []).map((b, j) => (
@@ -539,6 +748,29 @@ export function TemplateProfessional({ data }) {
                     </li>
                   ))}
                 </ul>
+              </div>
+            ))}
+          </section>
+        )}
+
+        {education.length > 0 && (
+          <section className="mb-6 border-b border-gray-200 pb-4">
+            <h2 className="text-sm font-bold text-slate-800 uppercase tracking-widest mb-4">
+              Education
+            </h2>
+            {education.map((edu, i) => (
+              <div key={i} className="mb-4">
+                <div className="flex justify-between items-baseline flex-wrap">
+                  <h3 className="font-bold text-md text-gray-900 break-words">
+                    {edu.degree}
+                  </h3>
+                  <span className="text-sm text-gray-500 font-medium break-words">
+                    {edu.year}
+                  </span>
+                </div>
+                <div className="text-sm text-gray-600 mt-1">
+                  {edu.school} {edu.gpa && <span className="text-xs text-gray-400 ml-2">GPA: {edu.gpa}</span>}
+                </div>
               </div>
             ))}
           </section>
@@ -576,6 +808,7 @@ export function TemplateElegant({ data }) {
   const header = data.header || {};
   const skills = data.skills || [];
   const experience = data.experience || [];
+  const education = data.education || [];
   const projects = data.projects || [];
 
   return (
@@ -612,6 +845,11 @@ export function TemplateElegant({ data }) {
                   </h3>
                   <p className="text-sm italic text-gray-600 break-words">
                     {exp.role}
+                    {(exp.startDate || exp.endDate) && (
+                      <span className="ml-2 text-xs not-italic text-gray-400">
+                        {exp.startDate} {exp.startDate && exp.endDate && "–"} {exp.endDate}
+                      </span>
+                    )}
                   </p>
                 </div>
                 <ul className="text-sm text-gray-700 text-justify">
@@ -621,6 +859,26 @@ export function TemplateElegant({ data }) {
                     </li>
                   ))}
                 </ul>
+              </div>
+            ))}
+          </section>
+        )}
+
+        {education.length > 0 && (
+          <section>
+            <h2 className="text-center text-sm font-bold uppercase tracking-widest border-b border-gray-300 pb-2 mb-4">
+              Education
+            </h2>
+            {education.map((edu, i) => (
+              <div key={i} className="mb-4 text-center">
+                <h3 className="font-bold text-lg break-words">
+                  {edu.school}
+                </h3>
+                <p className="text-sm italic text-gray-600 break-words">
+                  {edu.degree}
+                  {edu.year && <span className="ml-2 text-xs not-italic text-gray-400">{edu.year}</span>}
+                </p>
+                {edu.gpa && <p className="text-xs text-gray-500 mt-1">GPA: {edu.gpa}</p>}
               </div>
             ))}
           </section>
@@ -659,6 +917,11 @@ export function TemplateElegant({ data }) {
             ))}
           </div>
         </section>
+
+        <CustomSectionsRenderer 
+          sections={data.customSections} 
+          titleClass="text-center text-sm font-bold uppercase tracking-widest border-b border-gray-300 pb-2 mb-4 mt-6" 
+        />
       </div>
     </div>
   );
@@ -669,6 +932,7 @@ export function TemplateCreative({ data }) {
   const header = data.header || {};
   const skills = data.skills || [];
   const experience = data.experience || [];
+  const education = data.education || [];
   const projects = data.projects || [];
 
   return (
@@ -729,9 +993,16 @@ export function TemplateCreative({ data }) {
                   <h3 className="font-bold text-md text-gray-800 break-words">
                     {exp.role}
                   </h3>
-                  <span className="text-xs text-gray-500 font-semibold uppercase tracking-wide break-words">
-                    {exp.company}
-                  </span>
+                  <div className="flex justify-between items-baseline">
+                    <span className="text-xs text-gray-500 font-semibold uppercase tracking-wide break-words">
+                      {exp.company}
+                    </span>
+                    {(exp.startDate || exp.endDate) && (
+                      <span className="text-xs text-gray-400 whitespace-nowrap">
+                        {exp.startDate} {exp.startDate && exp.endDate && "–"} {exp.endDate}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <ul className="list-disc ml-4 text-sm text-gray-600">
                   {(exp.bullets || []).map((b, j) => (
@@ -740,6 +1011,32 @@ export function TemplateCreative({ data }) {
                     </li>
                   ))}
                 </ul>
+              </div>
+            ))}
+          </section>
+        )}
+
+        {education.length > 0 && (
+          <section className="mb-8">
+            <h2 className="text-xl font-bold text-gray-900 border-l-4 border-yellow-500 pl-3 mb-4 uppercase">
+              Education
+            </h2>
+            {education.map((edu, i) => (
+              <div key={i} className="mb-4">
+                <div className="flex flex-col mb-1">
+                  <h3 className="font-bold text-md text-gray-800 break-words">
+                    {edu.degree}
+                  </h3>
+                  <div className="flex justify-between items-baseline">
+                    <span className="text-xs text-gray-500 font-semibold uppercase tracking-wide break-words">
+                      {edu.school}
+                    </span>
+                    <span className="text-xs text-gray-400 whitespace-nowrap">
+                      {edu.year}
+                    </span>
+                  </div>
+                  {edu.gpa && <p className="text-xs text-gray-400 mt-1">GPA: {edu.gpa}</p>}
+                </div>
               </div>
             ))}
           </section>
@@ -774,6 +1071,11 @@ export function TemplateCreative({ data }) {
             ))}
           </section>
         )}
+
+        <CustomSectionsRenderer 
+          sections={data.customSections} 
+          titleClass="text-xl font-bold text-gray-900 border-l-4 border-yellow-500 pl-3 mb-4 mt-8 uppercase" 
+        />
       </div>
     </div>
   );

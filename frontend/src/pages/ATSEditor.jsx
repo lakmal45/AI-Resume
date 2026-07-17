@@ -1,12 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Button from "../components/ui/Button";
 import { api } from "../services/api";
 import { TemplateMinimal } from "../templates/Templates";
+import { useToast } from "../context/ToastContext";
 
 export default function ATSEditor() {
+  const location = useLocation();
+  const params = useMemo(() => new URLSearchParams(location.search), [location.search]);
   const navigate = useNavigate();
-  const [params] = useSearchParams();
+  const { toast } = useToast();
   const [resumeId, setResumeId] = useState(null);
   const [sourceType, setSourceType] = useState("manual");
 
@@ -136,7 +139,7 @@ export default function ATSEditor() {
       navigate("/atsanalyzer");
     } catch (e) {
       console.error(e);
-      alert("Failed to save ATS updated resume");
+      toast("Failed to save ATS updated resume", "error");
     }
   };
 
@@ -183,15 +186,15 @@ export default function ATSEditor() {
 
         <Button
           onClick={applyAllChanges}
-          className="w-full mt-6 py-2 text-white rounded hover:bg-primary/80"
+          className="w-full mt-6 flex justify-center items-center py-2 text-sm"
         >
-          Apply All Changes & Save
+          Save & Return
         </Button>
       </div>
 
-      {/* ---------------- RIGHT: EXACT PREVIEW ---------------- */}
-      <div className="hidden md:flex flex-1 overflow-auto p-6 justify-center items-start">
-        <div className="bg-white w-[210mm] min-h-[297mm] p-8 overflow-y-auto shadow-xl break-words whitespace-pre-wrap">
+      {/* ---------------- RIGHT: PREVIEW ---------------- */}
+      <div className="w-full md:w-2/3 p-10 overflow-y-auto bg-gray-50 dark:bg-gray-900/50">
+        <div className="max-w-[210mm] mx-auto bg-white dark:bg-black shadow-lg shadow-gray-200 dark:shadow-none min-h-[297mm]">
           <TemplateMinimal data={previewResume} />
         </div>
       </div>

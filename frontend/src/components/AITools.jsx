@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import { api } from "../services/api";
+import { useToast } from "../context/ToastContext";
 import Button from "./ui/Button";
+import AILoadingOverlay from "./AILoadingOverlay";
 
 export function AISkills({ onGenerated }) {
   const [keywords, setKeywords] = useState("");
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   const generate = async () => {
     if (!keywords.trim()) return;
@@ -13,13 +16,15 @@ export function AISkills({ onGenerated }) {
       const res = await api.post("/api/ai/generate-skills", { keywords });
       onGenerated(res.data.skills || []);
     } catch {
-      alert("AI skills generation failed");
+      toast("AI skills generation failed", "error");
     } finally {
       setLoading(false);
     }
   };
 
   return (
+    <>
+    <AILoadingOverlay isVisible={loading} message="Generating tailored skills..." />
     <div className="bg-base-card border border-base-border rounded-xl p-4 space-y-2">
       <h3 className="font-semibold text-sm">AI Skill Generator</h3>
       <textarea
@@ -33,11 +38,13 @@ export function AISkills({ onGenerated }) {
         {loading ? "Generating..." : "Generate Skills"}
       </Button>
     </div>
+    </>
   );
 }
 
 export function AIExperience({ experience, onUpdate }) {
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   const generate = async () => {
     if (!experience.role && !experience.company) return;
@@ -58,22 +65,26 @@ export function AIExperience({ experience, onUpdate }) {
         bulletsText: bullets.join("\n"),
       });
     } catch {
-      alert("AI experience generation failed");
+      toast("AI experience generation failed", "error");
     } finally {
       setLoading(false);
     }
   };
 
   return (
+    <>
+    <AILoadingOverlay isVisible={loading} message="Generating experience bullets..." />
     <Button size="sm" type="button" onClick={generate} disabled={loading}>
       {loading ? "AI..." : "AI Bullets"}
     </Button>
+    </>
   );
 }
 
 export function AIProjects({ onGenerated }) {
   const [keywords, setKeywords] = useState("");
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   const generate = async () => {
     if (!keywords.trim()) return;
@@ -89,13 +100,15 @@ export function AIProjects({ onGenerated }) {
 
       onGenerated(projects);
     } catch {
-      alert("AI project generation failed");
+      toast("AI project generation failed", "error");
     } finally {
       setLoading(false);
     }
   };
 
   return (
+    <>
+    <AILoadingOverlay isVisible={loading} message="Generating project ideas..." />
     <div className="bg-base-card border border-base-border rounded-xl p-4 space-y-2 mt-3">
       <h3 className="font-semibold text-sm">AI Project Ideas</h3>
       <textarea
@@ -109,5 +122,6 @@ export function AIProjects({ onGenerated }) {
         {loading ? "Generating..." : "Generate Projects"}
       </Button>
     </div>
+    </>
   );
 }

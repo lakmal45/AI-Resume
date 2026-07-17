@@ -12,6 +12,16 @@ dist
 dist-ssr
 *.local
 
+# Environment secrets
+.env
+.env.*
+
+# Uploaded files
+uploads/
+
+# Tesseract trained data (download at build time)
+eng.traineddata
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

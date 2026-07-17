@@ -2,6 +2,15 @@ import dotenv from "dotenv";
 import express from "express";
 import Groq from "groq-sdk";
 import auth from "../middleware/auth.js";
+import { asyncHandler } from "../middleware/asyncHandler.js";
+import { validate } from "../middleware/validate.js";
+import {
+  generateSummarySchema,
+  generateSkillsSchema,
+  generateExperienceSchema,
+  atsCheckSchema,
+  generateFullSchema,
+} from "../validators/schemas.js";
 
 const router = express.Router();
 dotenv.config();
@@ -12,8 +21,7 @@ const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
 });
 
-// Universal text generation helper
-async function generateText(prompt) {
+async function generateText(prompt, options = {}) {
   try {
     const completion = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile", // ✅ FINAL, working, production-safe
@@ -27,10 +35,16 @@ async function generateText(prompt) {
       ],
       temperature: 0.45,
       max_tokens: 1800,
+      ...(options.jsonMode ? { response_format: { type: "json_object" } } : {}),
     });
 
     const text = completion.choices?.[0]?.message?.content?.trim();
     if (!text) throw new Error("AI returned empty response");
+    
+    if (options.jsonMode) {
+      return JSON.parse(text);
+    }
+    
     return text;
   } catch (err) {
     console.error("Groq generateText error:", err);
@@ -38,27 +52,18 @@ async function generateText(prompt) {
   }
 }
 
-// Extract JSON safely even if wrapped in markdown
-function extractJson(text) {
-  const start = text.indexOf("{");
-  const end = text.lastIndexOf("}");
-  if (start === -1 || end === -1) {
-    throw new Error("Invalid JSON returned by AI");
-  }
-  return JSON.parse(text.slice(start, end + 1));
-}
-
 // ───────────────────────────────────────────────
 // ROUTES
 // ───────────────────────────────────────────────
 
 // SUMMARY — AI Improve Summary
-router.post("/generate-summary", auth, async (req, res) => {
-  const { prompt } = req.body;
+router.post(
+  "/generate-summary",
+  auth,
+  validate(generateSummarySchema),
+  asyncHandler(async (req, res) => {
+    const { prompt } = req.body;
 
-  if (!prompt) return res.status(400).json({ message: "prompt is required" });
-
-  try {
     const text = await generateText(`
 Write a 4–6 sentence resume summary for a junior software engineer or intern.
 
@@ -74,20 +79,19 @@ Guidelines:
     `);
 
     res.json({ summary: text });
-  } catch (err) {
-    res.status(500).json({ message: "AI summary failed" });
-  }
-});
+  })
+);
 
 // SKILLS — AI Generate Skills
-router.post("/generate-skills", auth, async (req, res) => {
-  const { keywords, role } = req.body;
+router.post(
+  "/generate-skills",
+  auth,
+  validate(generateSkillsSchema),
+  asyncHandler(async (req, res) => {
+    const { keywords, role } = req.body;
 
-  if (!keywords) return res.status(400).json({ message: "keywords required" });
-
-  try {
     const text = await generateText(`
-Extract professional SKILLS releted to this field: ${keywords}.
+Extract professional SKILLS related to this field: ${keywords}.
 and for this role: ${role}.
 Return ONLY comma-separated skills, make sure they are relevant to useful for a ${role} resume, and need more than 10 and less than 15 skills:
 ${keywords}
@@ -99,16 +103,17 @@ ${keywords}
       .filter(Boolean);
 
     res.json({ skills });
-  } catch (err) {
-    res.status(500).json({ message: "AI skills generation failed" });
-  }
-});
+  })
+);
 
 // EXPERIENCE — AI Auto Bullets
-router.post("/generate-experience", auth, async (req, res) => {
-  const { role, company, tech, notes } = req.body;
+router.post(
+  "/generate-experience",
+  auth,
+  validate(generateExperienceSchema),
+  asyncHandler(async (req, res) => {
+    const { role, company, tech, notes } = req.body;
 
-  try {
     const text = await generateText(`
 Write 4 strong resume bullet points:
 
@@ -130,22 +135,18 @@ Rules:
       .filter(Boolean);
 
     res.json({ bullets });
-  } catch (err) {
-    res.status(500).json({ message: "AI experience generation failed" });
-  }
-});
+  })
+);
 
 // ATS SCORE — AI Resume vs Job Description
-router.post("/ats-check", auth, async (req, res) => {
-  const { resumeText, jobDescription } = req.body;
+router.post(
+  "/ats-check",
+  auth,
+  validate(atsCheckSchema),
+  asyncHandler(async (req, res) => {
+    const { resumeText, jobDescription } = req.body;
 
-  if (!resumeText || !jobDescription)
-    return res.status(400).json({
-      message: "resumeText and jobDescription required",
-    });
-
-  try {
-    const text = await generateText(`
+    const result = await generateText(`
 You are an ATS analyzer.
 
 RESUME:
@@ -160,22 +161,21 @@ Return ONLY JSON:
   "missingKeywords": ["kw1", "kw2"],
   "suggestions": ["sentence1", "sentence2"]
 }
-    `);
+    `, { jsonMode: true });
 
-    res.json(extractJson(text));
-  } catch (err) {
-    res.status(500).json({ message: "AI ATS check failed" });
-  }
-});
+    res.json(result);
+  })
+);
 
 // FULL RESUME GENERATOR — Build everything from keywords
-router.post("/generate-full", auth, async (req, res) => {
-  const { keywords, targetRole } = req.body;
+router.post(
+  "/generate-full",
+  auth,
+  validate(generateFullSchema),
+  asyncHandler(async (req, res) => {
+    const { keywords, targetRole } = req.body;
 
-  if (!keywords) return res.status(400).json({ message: "keywords required" });
-
-  try {
-    const text = await generateText(`
+    const result = await generateText(`
 Create a FULL resume JSON.
 
 Keywords:
@@ -216,12 +216,10 @@ Return ONLY JSON:
     }
   ]
 }
-    `);
+    `, { jsonMode: true });
 
-    res.json(extractJson(text));
-  } catch (err) {
-    res.status(500).json({ message: "AI full resume generation failed" });
-  }
-});
+    res.json(result);
+  })
+);
 
 export default router;
